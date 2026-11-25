@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Move Coach">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Chess Move Coach</title>
+<style>
+/* VOICE an Apple-style utility: calm, roomy, one idea per screen
+   IDEA a pocket analysis board; the position is the screen, controls float on glass
+   PICTURE the board in system greys with one system-blue arrow for the best move
+   COLOUR Apple system palette: grouped grey ground, white surfaces, system blue, orange and red
+   TYPE SF Pro (system font) throughout
+   LAYOUT title and settings, board, best move with one reason, floating glass dock: undo, move field, moves */
+:root{color-scheme:light dark;
+--bg:light-dark(#f2f2f7,#000000);--s1:light-dark(#ffffff,#1c1c1e);--s2:light-dark(#ffffff,#2c2c2e);
+--fill:light-dark(rgba(118,118,128,.12),rgba(118,118,128,.24));
+--ink:light-dark(#000000,#ffffff);--ink2:light-dark(rgba(60,60,67,.78),rgba(235,235,245,.68));--ink3:light-dark(rgba(60,60,67,.5),rgba(235,235,245,.42));
+--sep:light-dark(rgba(60,60,67,.16),rgba(84,84,88,.55));
+--blue:light-dark(#007aff,#0a84ff);--orange:light-dark(#ff9500,#ff9f0a);--red:light-dark(#ff3b30,#ff453a);
+--glass:light-dark(rgba(255,255,255,.42),rgba(62,62,66,.42));--rim:light-dark(rgba(255,255,255,1),rgba(255,255,255,.28));
+--lt:light-dark(#e5e5ea,#d1d1d6);--dk:light-dark(#aeaeb2,#98989d);
+--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
+--bs:min(calc(100vw - 40px),500px)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+html{font-size:17px;-webkit-text-size-adjust:100%}
+@supports (-webkit-touch-callout:none){html{font:-apple-system-body}}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg)}
+body{color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif;line-height:1.35;letter-spacing:-.01em}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+button:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.app{position:fixed;left:0;right:0;top:var(--vt,0px);height:var(--vh,100%);display:flex;flex-direction:column;max-width:560px;margin:0 auto}
+.glass{position:relative;background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(210%);backdrop-filter:blur(18px) saturate(210%);
+  box-shadow:0 14px 34px -10px rgba(0,0,0,.28),0 2px 8px rgba(0,0,0,.06),inset 0 1px 1px var(--rim),inset 0 -1px 1px light-dark(rgba(255,255,255,.5),rgba(255,255,255,.08)),inset 0 0 0 .5px light-dark(rgba(0,0,0,.06),rgba(255,255,255,.12))}
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(165deg,light-dark(rgba(255,255,255,.85),rgba(255,255,255,.16)) 0%,transparent 42%,transparent 72%,light-dark(rgba(255,255,255,.45),rgba(255,255,255,.07)) 100%)}
+.glass>*{position:relative;z-index:1}
+.top{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--sat) + 12px) 20px 0}
+h1{margin:0;font-size:min(1.65rem,34px);font-weight:700;letter-spacing:-.025em}
+.gb{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;flex:none;color:var(--ink)}
+.gb:active{transform:scale(.94)}
+.bw{position:relative;width:var(--bs);height:var(--bs);margin:20px auto 0;flex:none;container-type:inline-size}
+.board{display:grid;grid-template:repeat(8,1fr)/repeat(8,1fr);width:100%;height:100%;border-radius:20px;overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.sq{position:relative;display:grid;place-items:center}
+.l{background:var(--lt)}.d{background:var(--dk)}
+.lm::before{content:"";position:absolute;inset:0;background:var(--blue);opacity:.22}
+.sel{box-shadow:inset 0 0 0 3px var(--blue)}
+.tg::after{content:"";position:absolute;left:50%;top:50%;width:26%;height:26%;transform:translate(-50%,-50%);border-radius:50%;background:rgba(0,0,0,.2)}
+.tg.cap::after{width:86%;height:86%;background:none;border:3.5px solid rgba(0,0,0,.2)}
+.chk{background-image:radial-gradient(circle,rgba(255,59,48,.85) 0,rgba(255,59,48,.4) 42%,transparent 72%)}
+.co{position:absolute;font-size:11px;font-weight:600;line-height:1;pointer-events:none;letter-spacing:0}
+.rk{top:4px;left:5px}.fl{bottom:4px;right:5px}
+.l .co{color:#8e8e93}.d .co{color:#f2f2f7}
+.pc{width:94%;height:94%;pointer-events:none;position:relative}
+#arrow{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.arw{opacity:.9;animation:fade .3s ease-out}
+@keyframes fade{from{opacity:0}}
+.scroll{flex:1;overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+.panel{padding:24px 24px calc(var(--sab) + 124px)}
+.fade{position:absolute;left:0;right:0;bottom:0;height:calc(var(--sab) + 104px);pointer-events:none;z-index:1;
+  background:linear-gradient(to bottom,color-mix(in srgb,var(--bg) 0%,transparent) 0%,color-mix(in srgb,var(--bg) 70%,transparent) 45%,var(--bg) 100%)}
+.cap{margin:0;font-size:.88rem;color:var(--ink2)}
+.warn{display:flex;gap:10px;align-items:center;margin:12px 0 0;padding:11px 14px;border-radius:16px;background:color-mix(in srgb,var(--orange) 13%,transparent);font-size:.88rem}
+.warn svg{flex:none;width:20px;height:20px;color:var(--orange)}
+.sg{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:14px 0 6px}
+.san{margin:0;font-size:min(2.35rem,60px);font-weight:700;letter-spacing:-.03em;line-height:1.05}
+.san.think{display:flex;align-items:center;gap:12px;font-size:min(1.5rem,38px);font-weight:600;color:var(--ink2)}
+.spin{width:20px;height:20px;border-radius:50%;border:2.5px solid var(--fill);border-top-color:var(--blue);animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(1turn)}}
+.play{background:var(--blue);color:#fff;font-weight:600;font-size:max(17px,1rem);min-height:50px;padding:0 30px;border-radius:999px;white-space:nowrap}
+.play:disabled{background:var(--fill);color:var(--ink3)}
+.play:active{transform:scale(.97)}
+.reason{margin:0;font-size:1rem}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
+.ev{font-size:.88rem;color:var(--ink2);white-space:nowrap}
+.more{color:var(--blue);font-size:.94rem;font-weight:500;min-height:44px;display:flex;align-items:center;gap:2px}
+.more svg{width:16px;height:16px;stroke-width:2.2}
+.t2{margin:10px 0 8px;font-size:min(1.5rem,38px);font-weight:700;letter-spacing:-.02em}
+.body{margin:0;color:var(--ink2)}
+.tbtn{margin-top:18px;color:var(--blue);font-weight:600;min-height:48px;padding:0 22px;border-radius:999px;background:color-mix(in srgb,var(--blue) 12%,transparent)}
+.dock{position:absolute;left:16px;right:16px;bottom:calc(var(--sab) + 12px);display:flex;align-items:center;gap:10px;z-index:2}
+.dock .gb{width:52px;height:52px}
+.field{flex:1;height:52px;border-radius:999px;display:flex;align-items:center;padding:0 5px 0 18px}
+.field:focus-within{box-shadow:0 14px 34px -10px rgba(0,0,0,.28),0 0 0 2px var(--blue)}
+#mv{flex:1;height:44px;border:0;outline:0;background:transparent;color:var(--ink);font:inherit;font-size:max(16px,1rem)}
+#mv::placeholder{color:var(--ink3)}
+.send{width:42px;height:42px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;flex:none}
+.send svg{stroke-width:2.2;width:20px;height:20px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.toast{position:absolute;left:20px;right:20px;bottom:calc(var(--sab) + 78px);margin:0;padding:13px 16px;border-radius:18px;font-size:.88rem;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none;z-index:3}
+.toast.on{opacity:1;transform:none}
+.kb .panel,.kb .fade{display:none}
+.kb{--bs:min(calc(100vw - 40px),500px,calc(var(--vh,100dvh) - var(--sat) - 150px))}
+.kb .dock{bottom:8px}
+.kb .bw{margin-top:12px}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.25);opacity:0;visibility:hidden;transition:opacity .25s,visibility 0s .25s;z-index:5}
+.scrim.open{opacity:1;visibility:visible;transition:opacity .25s}
+.sheet{position:fixed;left:8px;right:8px;bottom:8px;max-width:544px;margin:0 auto;max-height:calc(100% - var(--sat) - 48px);display:flex;flex-direction:column;background:var(--bg);border-radius:38px;box-shadow:0 24px 70px rgba(0,0,0,.3);transform:translateY(110%);visibility:hidden;transition:transform .36s cubic-bezier(.2,.85,.25,1),visibility 0s .36s;z-index:6}
+.sheet.open{transform:none;visibility:visible;transition:transform .36s cubic-bezier(.2,.85,.25,1)}
+.sh{position:relative;display:grid;grid-template-columns:46px 1fr 46px;align-items:center;padding:16px 14px 6px;touch-action:none}
+.sh::before{content:"";position:absolute;left:50%;top:6px;width:36px;height:5px;margin-left:-18px;border-radius:3px;background:var(--fill)}
+.sh h2{grid-column:2;margin:0;text-align:center;font-size:1rem;font-weight:600}
+.sh .gb{grid-column:3;width:44px;height:44px}
+.sh .gb svg{width:16px;height:16px;stroke-width:2.4}
+.sb{overflow-y:auto;padding:10px 18px calc(var(--sab) + 24px)}
+.lab{margin:22px 4px 8px;font-size:.82rem;color:var(--ink2)}
+.lab:first-child{margin-top:8px}
+.seg{display:flex;background:var(--fill);border-radius:999px;padding:3px}
+.seg button{flex:1;min-height:40px;border-radius:999px;font-weight:500;font-size:.94rem}
+.seg button[aria-pressed=true]{background:light-dark(#ffffff,#636366);box-shadow:0 2px 6px rgba(0,0,0,.12);font-weight:600}
+.note{margin:8px 4px 0;font-size:.82rem;color:var(--ink2)}
+.group{background:var(--s1);border-radius:20px;overflow:hidden;margin-top:20px}
+.group:first-child{margin-top:8px}
+.row{display:flex;width:100%;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:12px 18px;text-align:left;font-size:1rem}
+.row+.row{box-shadow:inset 0 .5px 0 var(--sep)}
+.row .v{color:var(--ink2);text-align:right}
+.row.red{color:var(--red)}
+.row.blue{color:var(--blue)}
+.row svg{width:16px;height:16px;color:var(--ink3);stroke-width:2.2}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-size:.82rem;font-weight:500;color:var(--ink2);text-align:left;padding:12px 10px 6px}
+td{padding:11px 10px;box-shadow:inset 0 .5px 0 var(--sep);font-weight:500}
+td:first-child,th:first-child{width:2.8em;color:var(--ink2);text-align:right;padding-right:14px;font-weight:400}
+td.now{color:var(--blue);font-weight:600}
+td.empty{color:var(--ink2);font-weight:400}
+.tree{width:100%;max-width:280px;display:block;margin:4px auto 0}
+.tree line{stroke:var(--ink3);stroke-width:2}
+.tree .cut{stroke-dasharray:4 5;opacity:.55}
+.tree circle{fill:var(--ink)}
+.tree .root{fill:var(--blue)}
+.tree .gone{fill:var(--fill)}
+.how .row{display:block}
+.how b{display:block;font-weight:600;margin-bottom:2px}
+.how span{color:var(--ink2);font-size:.94rem}
+@media(prefers-reduced-motion:reduce){.arw,.spin{animation:none}.sheet,.scrim,.toast{transition:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="wk" viewBox="5 1.5 90 90"><g fill="#ffffff" stroke="#2c2c2e" stroke-width="2.4" stroke-linejoin="round"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M35.5 46C30 37 35 25 50 25S70 37 64.5 46Z"/><rect x="47" y="5" width="6" height="20" rx="2"/><rect x="41" y="10" width="18" height="6" rx="2"/></g></symbol><symbol id="bk" viewBox="5 1.5 90 90"><g fill="#1c1c1e" stroke="#6e6e73" stroke-width="1.8" stroke-linejoin="round"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M35.5 46C30 37 35 25 50 25S70 37 64.5 46Z"/><rect x="47" y="5" width="6" height="20" rx="2"/><rect x="41" y="10" width="18" height="6" rx="2"/></g></symbol><symbol id="wq" viewBox="5 1.5 90 90"><g fill="#ffffff" stroke="#2c2c2e" stroke-width="2.4" stroke-linejoin="round"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></g></symbol><symbol id="bq" viewBox="5 1.5 90 90"><g fill="#1c1c1e" stroke="#6e6e73" stroke-width="1.8" stroke-linejoin="round"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></g></symbol><symbol id="wr" viewBox="5 1.5 90 90"><g fill="#ffffff" stroke="#2c2c2e" stroke-width="2.4" stroke-linejoin="round"><path d="M31 79C33 70 34.5 60 34.5 47H65.5C65.5 60 67 70 69 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="30" y="41" width="40" height="7" rx="3.5"/><path d="M28 20.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V40H28Z"/></g></symbol><symbol id="br" viewBox="5 1.5 90 90"><g fill="#1c1c1e" stroke="#6e6e73" stroke-width="1.8" stroke-linejoin="round"><path d="M31 79C33 70 34.5 60 34.5 47H65.5C65.5 60 67 70 69 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="30" y="41" width="40" height="7" rx="3.5"/><path d="M28 20.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V40H28Z"/></g></symbol><symbol id="wb" viewBox="5 1.5 90 90"><g fill="#ffffff" stroke="#2c2c2e" stroke-width="2.4" stroke-linejoin="round"><path d="M36 79C36 67 42 61 44 55H56C58 61 64 67 64 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="37" y="49" width="26" height="7" rx="3.5"/><path d="M50 15C61 24 64.5 33 61.5 41C59.5 46 55 49 50 49S40.5 46 38.5 41C35.5 33 39 24 50 15Z"/><circle cx="50" cy="11" r="4.5"/><path d="M55.5 24L45.5 36" fill="none" stroke="#2c2c2e" stroke-width="3.2" stroke-linecap="round"/></g></symbol><symbol id="bb" viewBox="5 1.5 90 90"><g fill="#1c1c1e" stroke="#6e6e73" stroke-width="1.8" stroke-linejoin="round"><path d="M36 79C36 67 42 61 44 55H56C58 61 64 67 64 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="37" y="49" width="26" height="7" rx="3.5"/><path d="M50 15C61 24 64.5 33 61.5 41C59.5 46 55 49 50 49S40.5 46 38.5 41C35.5 33 39 24 50 15Z"/><circle cx="50" cy="11" r="4.5"/><path d="M55.5 24L45.5 36" fill="none" stroke="#e5e5ea" stroke-width="3.2" stroke-linecap="round"/></g></symbol><symbol id="wn" viewBox="5 1.5 90 90"><g fill="#ffffff" stroke="#2c2c2e" stroke-width="2.4" stroke-linejoin="round"><path d="M34 79C36 68 42 62 46 56H38.5C33.5 56 28.5 54.5 25.5 51C23 48 23.5 44.5 26.5 41.5L42 26.5C44 23 45.5 18.5 47.5 13L54 19.5C67 23 75 35 75 51C75 62 73 71 71 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><circle cx="45.5" cy="33" r="3" fill="#2c2c2e"/><path d="M60 26C67 32 70 41 70 52" fill="none" stroke="#2c2c2e" stroke-width="2.6" stroke-linecap="round" opacity=".55"/></g></symbol><symbol id="bn" viewBox="5 1.5 90 90"><g fill="#1c1c1e" stroke="#6e6e73" stroke-width="1.8" stroke-linejoin="round"><path d="M34 79C36 68 42 62 46 56H38.5C33.5 56 28.5 54.5 25.5 51C23 48 23.5 44.5 26.5 41.5L42 26.5C44 23 45.5 18.5 47.5 13L54 19.5C67 23 75 35 75 51C75 62 73 71 71 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><circle cx="45.5" cy="33" r="3" fill="#e5e5ea"/><path d="M60 26C67 32 70 41 70 52" fill="none" stroke="#e5e5ea" stroke-width="2.6" stroke-linecap="round" opacity=".55"/></g></symbol><symbol id="wp" viewBox="5 1.5 90 90"><g fill="#ffffff" stroke="#2c2c2e" stroke-width="2.4" stroke-linejoin="round"><path d="M35 79C35 66 41 58 43 51H57C59 58 65 66 65 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="36" y="45" width="28" height="7" rx="3.5"/><circle cx="50" cy="32" r="12.5"/></g></symbol><symbol id="bp" viewBox="5 1.5 90 90"><g fill="#1c1c1e" stroke="#6e6e73" stroke-width="1.8" stroke-linejoin="round"><path d="M35 79C35 66 41 58 43 51H57C59 58 65 66 65 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="36" y="45" width="28" height="7" rx="3.5"/><circle cx="50" cy="32" r="12.5"/></g></symbol></svg>
+<div class="app" id="app">
+  <div class="scroll" id="scroll">
+  <header class="top">
+    <h1>Move Coach</h1>
+    <button class="gb glass" id="bSet" aria-label="Settings"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button>
+  </header>
+  <div class="bw">
+    <div class="board" id="board" role="grid" aria-label="Chess board"></div>
+    <svg id="arrow" viewBox="0 0 8 8" aria-hidden="true"></svg>
+  </div>
+  <main class="panel" id="panel"><div id="coach" aria-live="polite"></div></main>
+  </div>
+  <div class="fade" aria-hidden="true"></div>
+  <p id="err" class="toast glass" role="alert"></p>
+  <div class="dock">
+    <button type="button" class="gb glass" id="undo" aria-label="Undo last move"><svg class="i" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+    <form class="field glass" id="f" autocomplete="off">
+      <label class="vh" for="mv" id="mvlab">Their move</label>
+      <input id="mv" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Their move">
+      <button class="send" type="submit" aria-label="Enter move"><svg class="i" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+    </form>
+    <button type="button" class="gb glass" id="bMoves" aria-label="Moves"><svg class="i" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" stroke-width="2.6"/></svg></button>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+
+<section class="sheet" id="shDetails" role="dialog" aria-modal="true" aria-labelledby="tDetails" aria-hidden="true">
+  <div class="sh"><h2 id="tDetails">Why this move</h2><button class="gb glass" data-close aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="sb" id="detailsBody"></div>
+</section>
+
+<section class="sheet" id="shSet" role="dialog" aria-modal="true" aria-labelledby="tSet" aria-hidden="true">
+  <div class="sh"><h2 id="tSet">Settings</h2><button class="gb glass" data-close aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="sb">
+    <p class="lab">I play</p>
+    <div class="seg" id="sideSeg"><button type="button" data-side="w" aria-pressed="true">White</button><button type="button" data-side="b" aria-pressed="false">Black</button></div>
+    <p class="lab">Thinking time</p>
+    <div class="seg" id="timeSeg"><button type="button" data-think="quick" aria-pressed="false">1 sec</button><button type="button" data-think="normal" aria-pressed="true">3 sec</button><button type="button" data-think="deep" aria-pressed="false">6 sec</button></div>
+    <p class="note">More time lets the engine look further ahead.</p>
+    <div class="group">
+      <button type="button" class="row" id="bInfo">How it works<svg class="i" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
+      <button type="button" class="row red" id="newg">New game</button>
+    </div>
+  </div>
+</section>
+
+<section class="sheet" id="shMoves" role="dialog" aria-modal="true" aria-labelledby="tMoves" aria-hidden="true">
+  <div class="sh"><h2 id="tMoves">Moves</h2><button class="gb glass" data-close aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="sb" id="movesBody">
+    <div class="group"><table><thead><tr><th>#</th><th>White</th><th>Black</th></tr></thead><tbody id="sheet"></tbody></table></div>
+    <p class="note" id="exnote">Example opening loaded. Start a new game in Settings.</p>
+    <div class="group"><button type="button" class="row blue" id="copy">Copy moves</button></div>
+  </div>
+</section>
+
+<section class="sheet" id="shInfo" role="dialog" aria-modal="true" aria-labelledby="tInfo" aria-hidden="true">
+  <div class="sh"><h2 id="tInfo">How it works</h2><button class="gb glass" data-close aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="sb">
+    <div class="group" style="padding:18px 16px 14px">
+      <svg class="tree" viewBox="0 0 300 200" role="img" aria-label="Search tree with pruned branches">
+        <line x1="150" y1="22" x2="55" y2="100"/><line x1="150" y1="22" x2="150" y2="100"/><line x1="150" y1="22" x2="245" y2="100"/>
+        <line x1="55" y1="100" x2="20" y2="178"/><line x1="55" y1="100" x2="55" y2="178"/><line x1="55" y1="100" x2="90" y2="178"/>
+        <line x1="150" y1="100" x2="120" y2="178"/><line class="cut" x1="150" y1="100" x2="150" y2="178"/><line class="cut" x1="150" y1="100" x2="180" y2="178"/>
+        <line x1="245" y1="100" x2="210" y2="178"/><line class="cut" x1="245" y1="100" x2="245" y2="178"/><line class="cut" x1="245" y1="100" x2="280" y2="178"/>
+        <circle class="root" cx="150" cy="22" r="11"/><circle cx="55" cy="100" r="9"/><circle cx="150" cy="100" r="9"/><circle cx="245" cy="100" r="9"/>
+        <circle cx="20" cy="178" r="7"/><circle cx="55" cy="178" r="7"/><circle cx="90" cy="178" r="7"/><circle cx="120" cy="178" r="7"/>
+        <circle class="gone" cx="150" cy="178" r="7"/><circle class="gone" cx="180" cy="178" r="7"/><circle cx="210" cy="178" r="7"/>
+        <circle class="gone" cx="245" cy="178" r="7"/><circle class="gone" cx="280" cy="178" r="7"/>
+      </svg>
+      <p class="note" style="text-align:center">Blue is the position now. Each row down is one more move ahead. Faded branches are skipped.</p>
+    </div>
+    <div class="group how">
+      <div class="row"><b>Board in memory</b><span>A 128-slot array (the "0x88" layout). One quick bit test tells the program when a move runs off the board.</span></div>
+      <div class="row"><b>Every legal move</b><span>Castling, en passant and promotion included. Moves that leave the king in check are dropped. It matches the standard test counts, such as 197,281 positions after two moves each.</span></div>
+      <div class="row"><b>Scoring a position</b><span>Pawn 1, knight 3.2, bishop 3.3, rook 5, queen 9, plus small bonuses for good squares, like a knight in the centre.</span></div>
+      <div class="row"><b>Looking ahead</b><span>Minimax with alpha-beta pruning. It searches one level deeper at a time until the clock runs out, then follows captures to the end so it never stops mid-trade.</span></div>
+      <div class="row"><b>Built from scratch</b><span>Plain JavaScript, no chess libraries. The search runs in a background worker so the board never freezes.</span></div>
+    </div>
+  </div>
+</section>
+
+<script>
+function ChessCore() {
+  'use strict';
+  const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+  const KN = [-33, -31, -18, -14, 14, 18, 31, 33];
+  const KG = [-17, -16, -15, -1, 1, 15, 16, 17];
+  const DI = [-17, -15, 15, 17];
+  const OR = [-16, -1, 1, 16];
+  const VAL = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
+  const RANK = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 10 };
+  const NAMES = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
+  const MATE = 100000;
+  // Piece-square tables (White's view, a8 first). Bonuses for good squares.
+  const PST = {
+    p: [0,0,0,0,0,0,0,0, 50,50,50,50,50,50,50,50, 10,10,20,30,30,20,10,10, 5,5,10,25,25,10,5,5,
+        0,0,0,20,20,0,0,0, 5,-5,-10,0,0,-10,-5,5, 5,10,10,-20,-20,10,10,5, 0,0,0,0,0,0,0,0],
+    n: [-50,-40,-30,-30,-30,-30,-40,-50, -40,-20,0,0,0,0,-20,-40, -30,0,10,15,15,10,0,-30, -30,5,15,20,20,15,5,-30,
+        -30,0,15,20,20,15,0,-30, -30,5,10,15,15,10,5,-30, -40,-20,0,5,5,0,-20,-40, -50,-40,-30,-30,-30,-30,-40,-50],
+    b: [-20,-10,-10,-10,-10,-10,-10,-20, -10,0,0,0,0,0,0,-10, -10,0,5,10,10,5,0,-10, -10,5,5,10,10,5,5,-10,
+        -10,0,10,10,10,10,0,-10, -10,10,10,10,10,10,10,-10, -10,5,0,0,0,0,5,-10, -20,-10,-10,-10,-10,-10,-10,-20],
+    r: [0,0,0,0,0,0,0,0, 5,10,10,10,10,10,10,5, -5,0,0,0,0,0,0,-5, -5,0,0,0,0,0,0,-5,
+        -5,0,0,0,0,0,0,-5, -5,0,0,0,0,0,0,-5, -5,0,0,0,0,0,0,-5, 0,0,0,5,5,0,0,0],
+    q: [-20,-10,-10,-5,-5,-10,-10,-20, -10,0,0,0,0,0,0,-10, -10,0,5,5,5,5,0,-10, -5,0,5,5,5,5,0,-5,
+        0,0,5,5,5,5,0,-5, -10,5,5,5,5,5,0,-10, -10,0,5,0,0,0,0,-10, -20,-10,-10,-5,-5,-10,-10,-20],
+    k: [-30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30,
+        -20,-30,-30,-40,-40,-30,-30,-20, -10,-20,-20,-20,-20,-20,-20,-10, 20,20,0,0,0,0,20,20, 20,30,10,0,0,10,30,20],
+    ke: [-50,-40,-30,-20,-20,-30,-40,-50, -30,-20,-10,0,0,-10,-20,-30, -30,-10,20,30,30,20,-10,-30, -30,-10,30,40,40,30,-10,-30,
+        -30,-10,30,40,40,30,-10,-30, -30,-10,20,30,30,20,-10,-30, -30,-30,0,0,0,0,-30,-30, -50,-30,-30,-30,-30,-30,-30,-50]
+  };
+  // Castling rights kept when a piece leaves or lands on a square (K=1 Q=2 k=4 q=8)
+  const CR = new Array(128).fill(15);
+  CR[116] = 12; CR[119] = 14; CR[112] = 13; CR[4] = 3; CR[7] = 11; CR[0] = 7;
+
+  const isW = p => p < 'a';
+  const sqName = s => 'abcdefgh'[s & 7] + (8 - (s >> 4));
+  const parseSq = t => (8 - +t[1]) * 16 + (t.charCodeAt(0) - 97);
+
+  class Game {
+    constructor(fen) { this.load(fen || START); }
+    load(fen) {
+      const [pos, turn, cas, ep, hm, fm] = fen.trim().split(/\s+/);
+      this.b = new Array(128).fill(null);
+      let r = 0, f = 0;
+      for (const ch of pos) {
+        if (ch === '/') { r++; f = 0; continue; }
+        if (ch >= '1' && ch <= '8') { f += +ch; continue; }
+        const s = r * 16 + f;
+        this.b[s] = ch;
+        if (ch === 'K') this.kw = s;
+        if (ch === 'k') this.kb = s;
+        f++;
+      }
+      this.turn = turn || 'w';
+      this.c = 0;
+      if (cas && cas !== '-') for (const ch of cas) this.c |= { K: 1, Q: 2, k: 4, q: 8 }[ch] || 0;
+      this.ep = ep && ep !== '-' ? parseSq(ep) : -1;
+      this.half = +hm || 0;
+      this.full = +fm || 1;
+      this.hist = [];
+    }
+    fen() {
+      let out = '';
+      for (let r = 0; r < 8; r++) {
+        let empty = 0;
+        for (let f = 0; f < 8; f++) {
+          const p = this.b[r * 16 + f];
+          if (!p) { empty++; continue; }
+          if (empty) { out += empty; empty = 0; }
+          out += p;
+        }
+        if (empty) out += empty;
+        if (r < 7) out += '/';
+      }
+      let cas = (this.c & 1 ? 'K' : '') + (this.c & 2 ? 'Q' : '') + (this.c & 4 ? 'k' : '') + (this.c & 8 ? 'q' : '');
+      return [out, this.turn, cas || '-', this.ep >= 0 ? sqName(this.ep) : '-', this.half, this.full].join(' ');
+    }
+    // Is square s attacked by side `by`?
+    attacked(s, by) {
+      const b = this.b;
+      let t;
+      if (by === 'w') {
+        t = s + 17; if (!(t & 0x88) && b[t] === 'P') return true;
+        t = s + 15; if (!(t & 0x88) && b[t] === 'P') return true;
+      } else {
+        t = s - 17; if (!(t & 0x88) && b[t] === 'p') return true;
+        t = s - 15; if (!(t & 0x88) && b[t] === 'p') return true;
+      }
+      const w = by === 'w';
+      const N = w ? 'N' : 'n', K = w ? 'K' : 'k', B = w ? 'B' : 'b', R = w ? 'R' : 'r', Q = w ? 'Q' : 'q';
+      for (const d of KN) { t = s + d; if (!(t & 0x88) && b[t] === N) return true; }
+      for (const d of KG) { t = s + d; if (!(t & 0x88) && b[t] === K) return true; }
+      for (const d of DI) {
+        t = s + d;
+        while (!(t & 0x88)) { const p = b[t]; if (p) { if (p === B || p === Q) return true; break; } t += d; }
+      }
+      for (const d of OR) {
+        t = s + d;
+        while (!(t & 0x88)) { const p = b[t]; if (p) { if (p === R || p === Q) return true; break; } t += d; }
+      }
+      return false;
+    }
+    inCheck(side) {
+      side = side || this.turn;
+      return this.attacked(side === 'w' ? this.kw : this.kb, side === 'w' ? 'b' : 'w');
+    }
+    // Pseudo-legal moves. capsOnly: captures and queen promotions (for quiescence search)
+    gen(capsOnly) {
+      const b = this.b, us = this.turn, white = us === 'w', moves = [];
+      const add = (from, to, flags, promo) => moves.push({
+        from, to, piece: b[from], flags, promo: promo || null,
+        cap: flags === 'e' ? (white ? 'p' : 'P') : b[to]
+      });
+      for (let s = 0; s < 128; s++) {
+        if (s & 0x88) { s += 7; continue; }
+        const p = b[s];
+        if (!p || isW(p) !== white) continue;
+        const t = p.toLowerCase();
+        if (t === 'p') {
+          const dir = white ? -16 : 16, startR = white ? 6 : 1, lastR = white ? 0 : 7;
+          const one = s + dir;
+          if (!b[one]) {
+            if ((one >> 4) === lastR) { for (const pr of (capsOnly ? 'q' : 'qrbn')) add(s, one, 'p', pr); }
+            else if (!capsOnly) {
+              add(s, one, 'n');
+              const two = one + dir;
+              if ((s >> 4) === startR && !b[two]) add(s, two, 'b');
+            }
+          }
+          for (const d of (white ? [-17, -15] : [15, 17])) {
+            const to = s + d;
+            if (to & 0x88) continue;
+            const q = b[to];
+            if (q && isW(q) !== white) {
+              if ((to >> 4) === lastR) { for (const pr of 'qrbn') add(s, to, 'c', pr); }
+              else add(s, to, 'c');
+            } else if (to === this.ep) add(s, to, 'e');
+          }
+        } else if (t === 'n' || t === 'k') {
+          for (const d of (t === 'n' ? KN : KG)) {
+            const to = s + d;
+            if (to & 0x88) continue;
+            const q = b[to];
+            if (!q) { if (!capsOnly) add(s, to, 'n'); }
+            else if (isW(q) !== white) add(s, to, 'c');
+          }
+        } else {
+          for (const d of (t === 'b' ? DI : t === 'r' ? OR : KG)) {
+            let to = s + d;
+            while (!(to & 0x88)) {
+              const q = b[to];
+              if (!q) { if (!capsOnly) add(s, to, 'n'); }
+              else { if (isW(q) !== white) add(s, to, 'c'); break; }
+              to += d;
+            }
+          }
+        }
+      }
+      if (!capsOnly) {
+        if (white && b[116] === 'K') {
+          if ((this.c & 1) && !b[117] && !b[118] && b[119] === 'R' && !this.attacked(116, 'b') && !this.attacked(117, 'b') && !this.attacked(118, 'b')) add(116, 118, 'k');
+          if ((this.c & 2) && !b[115] && !b[114] && !b[113] && b[112] === 'R' && !this.attacked(116, 'b') && !this.attacked(115, 'b') && !this.attacked(114, 'b')) add(116, 114, 'q');
+        } else if (!white && b[4] === 'k') {
+          if ((this.c & 4) && !b[5] && !b[6] && b[7] === 'r' && !this.attacked(4, 'w') && !this.attacked(5, 'w') && !this.attacked(6, 'w')) add(4, 6, 'k');
+          if ((this.c & 8) && !b[3] && !b[2] && !b[1] && b[0] === 'r' && !this.attacked(4, 'w') && !this.attacked(3, 'w') && !this.attacked(2, 'w')) add(4, 2, 'q');
+        }
+      }
+      return moves;
+    }
+    make(m) {
+      const b = this.b, us = this.turn;
+      this.hist.push({ m, c: this.c, ep: this.ep, half: this.half, kw: this.kw, kb: this.kb });
+      b[m.to] = m.promo ? (us === 'w' ? m.promo.toUpperCase() : m.promo) : m.piece;
+      b[m.from] = null;
+      if (m.flags === 'e') b[us === 'w' ? m.to + 16 : m.to - 16] = null;
+      else if (m.flags === 'k') { b[m.to - 1] = b[m.to + 1]; b[m.to + 1] = null; }
+      else if (m.flags === 'q') { b[m.to + 1] = b[m.to - 2]; b[m.to - 2] = null; }
+      if (m.piece === 'K') this.kw = m.to; else if (m.piece === 'k') this.kb = m.to;
+      this.c &= CR[m.from] & CR[m.to];
+      this.ep = m.flags === 'b' ? (m.from + m.to) >> 1 : -1;
+      this.half = (m.piece === 'P' || m.piece === 'p' || m.cap) ? 0 : this.half + 1;
+      if (us === 'b') this.full++;
+      this.turn = us === 'w' ? 'b' : 'w';
+    }
+    unmake() {
+      const h = this.hist.pop(), m = h.m, b = this.b;
+      this.turn = this.turn === 'w' ? 'b' : 'w';
+      const us = this.turn;
+      if (us === 'b') this.full--;
+      b[m.from] = m.piece;
+      if (m.flags === 'e') { b[m.to] = null; b[us === 'w' ? m.to + 16 : m.to - 16] = m.cap; }
+      else b[m.to] = m.cap || null;
+      if (m.flags === 'k') { b[m.to + 1] = b[m.to - 1]; b[m.to - 1] = null; }
+      else if (m.flags === 'q') { b[m.to - 2] = b[m.to + 1]; b[m.to + 1] = null; }
+      this.c = h.c; this.ep = h.ep; this.half = h.half; this.kw = h.kw; this.kb = h.kb;
+      return m;
+    }
+    legal() {
+      const out = [], us = this.turn;
+      for (const m of this.gen(false)) {
+        this.make(m);
+        if (!this.attacked(us === 'w' ? this.kw : this.kb, this.turn)) out.push(m);
+        this.unmake();
+      }
+      return out;
+    }
+    perft(d) {
+      if (d === 0) return 1;
+      let n = 0;
+      const us = this.turn;
+      for (const m of this.gen(false)) {
+        this.make(m);
+        if (!this.attacked(us === 'w' ? this.kw : this.kb, this.turn)) n += this.perft(d - 1);
+        this.unmake();
+      }
+      return n;
+    }
+    san(m, legal) {
+      legal = legal || this.legal();
+      let s;
+      if (m.flags === 'k') s = 'O-O';
+      else if (m.flags === 'q') s = 'O-O-O';
+      else {
+        const t = m.piece.toLowerCase();
+        if (t === 'p') {
+          s = m.cap ? sqName(m.from)[0] + 'x' + sqName(m.to) : sqName(m.to);
+          if (m.promo) s += '=' + m.promo.toUpperCase();
+        } else {
+          s = t.toUpperCase();
+          const amb = legal.filter(o => o.piece === m.piece && o.to === m.to && o.from !== m.from);
+          if (amb.length) {
+            const sameF = amb.some(o => (o.from & 7) === (m.from & 7));
+            const sameR = amb.some(o => (o.from >> 4) === (m.from >> 4));
+            if (!sameF) s += sqName(m.from)[0];
+            else if (!sameR) s += sqName(m.from)[1];
+            else s += sqName(m.from);
+          }
+          if (m.cap) s += 'x';
+          s += sqName(m.to);
+        }
+      }
+      this.make(m);
+      if (this.inCheck()) s += this.legal().length ? '+' : '#';
+      this.unmake();
+      return s;
+    }
+    // Read a move typed by a person: SAN (Nf3, exd5, O-O, e8=Q) or coordinates (g1f3, e7e8q)
+    parse(text) {
+      const legal = this.legal();
+      let t = String(text).trim().replace(/[+#!?\s]/g, '');
+      if (!t) return null;
+      if (/^[0oO]-?[0oO]$/.test(t)) t = 'O-O';
+      if (/^[0oO]-?[0oO]-?[0oO]$/.test(t)) t = 'O-O-O';
+      const co = t.match(/^([a-h][1-8])-?([a-h][1-8])=?([qrbnQRBN])?$/);
+      if (co) {
+        const from = parseSq(co[1]), to = parseSq(co[2]), pr = (co[3] || '').toLowerCase();
+        const hits = legal.filter(m => m.from === from && m.to === to && (!m.promo || m.promo === (pr || 'q')));
+        if (hits.length === 1) return hits[0];
+      }
+      const plain = s => s.replace(/[+#=]/g, '');
+      const sans = legal.map(m => plain(this.san(m, legal)));
+      const want = plain(t.replace(/^([a-h]x?[a-h]?[18])([qrbnQRBN])$/, (_, a, p) => a + p.toUpperCase()));
+      let i = sans.indexOf(want);
+      if (i >= 0) return legal[i];
+      const loose = s => s.toLowerCase().replace(/x/g, '');
+      const found = sans.map((s, j) => loose(s) === loose(want) ? j : -1).filter(j => j >= 0);
+      if (found.length === 1) return legal[found[0]];
+      // Pawn-promotion typed without a piece: default to queen
+      const q = sans.map((s, j) => loose(s) === loose(want) + 'q' ? j : -1).filter(j => j >= 0);
+      if (q.length === 1) return legal[q[0]];
+      return null;
+    }
+    // Score from the side to move's point of view, in centipawns
+    evaluate() {
+      const b = this.b;
+      let score = 0, phase = 0, wb = 0, bb = 0;
+      for (let s = 0; s < 128; s++) {
+        if (s & 0x88) { s += 7; continue; }
+        const p = b[s];
+        if (!p) continue;
+        const t = p.toLowerCase();
+        if (t === 'k' || t === 'p') continue;
+        phase += VAL[t];
+        if (t === 'b') { if (isW(p)) wb++; else bb++; }
+      }
+      const end = phase <= 2600;
+      for (let s = 0; s < 128; s++) {
+        if (s & 0x88) { s += 7; continue; }
+        const p = b[s];
+        if (!p) continue;
+        const t = p.toLowerCase(), w = isW(p);
+        const i = w ? (s >> 4) * 8 + (s & 7) : (7 - (s >> 4)) * 8 + (s & 7);
+        const v = VAL[t] + (t === 'k' ? PST[end ? 'ke' : 'k'][i] : PST[t][i]);
+        score += w ? v : -v;
+      }
+      if (wb >= 2) score += 30;
+      if (bb >= 2) score -= 30;
+      return this.turn === 'w' ? score : -score;
+    }
+    // Does the piece on `from` attack square `to`?
+    hits(from, to) {
+      const p = this.b[from];
+      if (!p || from === to) return false;
+      const t = p.toLowerCase(), d = to - from;
+      if (t === 'p') return isW(p) ? (d === -17 || d === -15) : (d === 15 || d === 17);
+      if (t === 'n') return KN.includes(d);
+      if (t === 'k') return KG.includes(d);
+      for (const dd of (t === 'b' ? DI : t === 'r' ? OR : KG)) {
+        let s = from + dd;
+        while (!(s & 0x88)) { if (s === to) return true; if (this.b[s]) break; s += dd; }
+      }
+      return false;
+    }
+    attackers(s, by) {
+      const out = [];
+      for (let f = 0; f < 128; f++) {
+        if (f & 0x88) { f += 7; continue; }
+        const p = this.b[f];
+        if (p && (isW(p) ? 'w' : 'b') === by && this.hits(f, s)) out.push(f);
+      }
+      return out;
+    }
+    // A piece is in danger if attacked and either undefended or attacked by something cheaper
+    threatened(s) {
+      const p = this.b[s];
+      if (!p) return false;
+      const mine = isW(p) ? 'w' : 'b', them = mine === 'w' ? 'b' : 'w';
+      const atk = this.attackers(s, them);
+      if (!atk.length) return false;
+      const def = this.attackers(s, mine);
+      const cheapest = Math.min(...atk.map(a => RANK[this.b[a].toLowerCase()]));
+      return !def.length || cheapest < RANK[p.toLowerCase()];
+    }
+    // Alpha-beta search with iterative deepening and a time limit
+    search(opts) {
+      opts = opts || {};
+      const self = this, start = Date.now(), time = opts.time || 1500, maxDepth = opts.depth || 64;
+      const deadline = start + time;
+      let nodes = 0, stop = false, rootBest = null;
+      const MAXPLY = 64;
+      const pvT = Array.from({ length: MAXPLY + 2 }, () => []);
+      const pvLen = new Array(MAXPLY + 2).fill(0);
+      const killers = Array.from({ length: MAXPLY + 2 }, () => [0, 0]);
+      const same = (a, b) => a && b && a.from === b.from && a.to === b.to && a.promo === b.promo;
+      function order(moves, pvMove, ply) {
+        for (const m of moves) {
+          let sc = 0;
+          if (same(m, pvMove)) sc = 1e7;
+          else {
+            if (m.cap) sc = 1e5 + RANK[m.cap.toLowerCase()] * 100 - RANK[m.piece.toLowerCase()];
+            if (m.promo) sc += 9e4 + RANK[m.promo];
+            if (!m.cap) {
+              const key = m.from * 128 + m.to;
+              if (killers[ply][0] === key) sc += 8e4; else if (killers[ply][1] === key) sc += 7e4;
+            }
+          }
+          m.sc = sc;
+        }
+        moves.sort((a, b) => b.sc - a.sc);
+      }
+      function tick() {
+        nodes++;
+        if ((nodes & 2047) === 0 && Date.now() > deadline) stop = true;
+      }
+      function qs(alpha, beta, ply) {
+        pvLen[ply] = ply;
+        tick();
+        if (stop) return 0;
+        const stand = self.evaluate();
+        if (stand >= beta || ply >= MAXPLY) return stand;
+        if (stand > alpha) alpha = stand;
+        const us = self.turn, moves = self.gen(true);
+        order(moves, null, ply);
+        for (const m of moves) {
+          self.make(m);
+          if (self.attacked(us === 'w' ? self.kw : self.kb, self.turn)) { self.unmake(); continue; }
+          const sc = -qs(-beta, -alpha, ply + 1);
+          self.unmake();
+          if (stop) return 0;
+          if (sc >= beta) return sc;
+          if (sc > alpha) alpha = sc;
+        }
+        return alpha;
+      }
+      function ab(depth, alpha, beta, ply) {
+        pvLen[ply] = ply;
+        if (ply > 0 && self.half >= 100) return 0;
+        if (ply > 0 && self.repeats()) return 0;
+        const us = self.turn;
+        const inChk = self.attacked(us === 'w' ? self.kw : self.kb, us === 'w' ? 'b' : 'w');
+        if (inChk && ply < MAXPLY - 8) depth++;
+        if (depth <= 0 || ply >= MAXPLY - 1) return qs(alpha, beta, ply);
+        tick();
+        if (stop) return 0;
+        const moves = self.gen(false);
+        order(moves, ply === 0 ? rootBest : null, ply);
+        let legal = 0, best = -Infinity;
+        for (const m of moves) {
+          self.make(m);
+          if (self.attacked(us === 'w' ? self.kw : self.kb, self.turn)) { self.unmake(); continue; }
+          legal++;
+          const sc = -ab(depth - 1, -beta, -alpha, ply + 1);
+          self.unmake();
+          if (stop) return 0;
+          if (sc > best) best = sc;
+          if (sc > alpha) {
+            alpha = sc;
+            pvT[ply][ply] = m;
+            for (let j = ply + 1; j < pvLen[ply + 1]; j++) pvT[ply][j] = pvT[ply + 1][j];
+            pvLen[ply] = Math.max(pvLen[ply + 1], ply + 1);
+          }
+          if (alpha >= beta) {
+            if (!m.cap) {
+              const key = m.from * 128 + m.to;
+              if (killers[ply][0] !== key) { killers[ply][1] = killers[ply][0]; killers[ply][0] = key; }
+            }
+            break;
+          }
+        }
+        if (!legal) return inChk ? -MATE + ply : 0;
+        return best;
+      }
+      const rootMoves = this.legal();
+      if (!rootMoves.length) return null;
+      let result = null;
+      for (let d = 1; d <= maxDepth; d++) {
+        const sc = ab(d, -Infinity, Infinity, 0);
+        if (stop && result) break;
+        const pv = pvT[0].slice(0, pvLen[0]).map(m => ({ from: m.from, to: m.to, promo: m.promo }));
+        if (!pv.length) break;
+        result = { move: pv[0], score: sc, pv, depth: d, nodes, ms: Date.now() - start };
+        rootBest = pv[0];
+        if (Math.abs(sc) > MATE - 1000) break;
+        if (Date.now() - start > time * 0.45) break;
+      }
+      if (result) { result.nodes = nodes; result.ms = Date.now() - start; }
+      return result;
+    }
+    // Has the current position appeared before (since the last pawn move or capture)?
+    repeats() {
+      if (this.half < 4) return false;
+      const key = this.b.join(',') + this.turn;
+      const saved = [];
+      let rep = false;
+      for (let i = 0; i < this.half && this.hist.length; i++) {
+        saved.push(this.unmake());
+        if (i % 2 === 1 && this.b.join(',') + this.turn === key) { rep = true; break; }
+      }
+      while (saved.length) this.make(saved.pop());
+      return rep;
+    }
+    find(mv) {
+      return this.legal().find(m => m.from === mv.from && m.to === mv.to && m.promo === (mv.promo || null)) || null;
+    }
+  }
+  return { Game, START, MATE, NAMES, RANK, sqName, parseSq, isW };
+}
+if (typeof module !== 'undefined') module.exports = ChessCore;
+
+</script>
+<script>
+{
+const C = ChessCore();
+const $ = id => document.getElementById(id);
+const N = C.NAMES;
+const TIMES = { quick: 1000, normal: 3000, deep: 6000 };
+const EXAMPLE = ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Nf6'];
+let G = new C.Game(), side = 'w', think = 'normal', sans = [], sel = -1, sugg = null, thinking = false;
+let reqId = 0, worker = null, busy = false, noWorker = false, example = false, lastEval = null;
+let toastT = 0, confirmT = 0, openSheet = null, lastFocus = null;
+
+const colorOf = p => C.isW(p) ? 'w' : 'b';
+const histMoves = () => G.hist.map(h => ({ from: h.m.from, to: h.m.to, promo: h.m.promo }));
+const fmt = n => n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? Math.round(n / 1e3) + 'k' : String(n);
+
+function makeWorker() {
+  try {
+    const src = ChessCore.toString() + '\nconst C=ChessCore();onmessage=e=>{const g=new C.Game();for(const mv of e.data.moves){const m=g.find(mv);if(m)g.make(m)}postMessage({id:e.data.id,r:g.search({time:e.data.time})})};';
+    const w = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+    w.onmessage = e => got(e.data.id, e.data.r);
+    w.onerror = () => { noWorker = true; worker = null; busy = false; if (thinking) runSync(reqId); };
+    return w;
+  } catch (err) { return null; }
+}
+function ask() {
+  const id = ++reqId;
+  thinking = true; sugg = null;
+  if (busy && worker) { worker.terminate(); worker = null; busy = false; }
+  if (!worker && !noWorker) { worker = makeWorker(); if (!worker) noWorker = true; }
+  if (worker) { busy = true; worker.postMessage({ id, moves: histMoves(), time: TIMES[think] }); }
+  else runSync(id);
+}
+function runSync(id) {
+  setTimeout(() => { if (id !== reqId) return; got(id, G.search({ time: Math.min(TIMES[think], 2000) })); }, 40);
+}
+function got(id, r) {
+  busy = false;
+  if (id !== reqId) return;
+  thinking = false; sugg = r;
+  if (r) lastEval = r.score;
+  render();
+}
+function status() {
+  if (!G.legal().length) return G.inCheck() ? (G.turn === side ? 'lost' : 'won') : 'stalemate';
+  if (G.half >= 100) return 'fifty';
+  return null;
+}
+function update() {
+  sel = -1;
+  if (!status() && G.turn === side) ask();
+  else { reqId++; thinking = false; sugg = null; }
+  render();
+  try { localStorage.setItem('cmc-state', JSON.stringify({ moves: histMoves(), side, think, example })); } catch (err) {}
+}
+function play(m) { sans.push(G.san(m)); G.make(m); update(); }
+function toast(t) {
+  const e = $('err'); e.textContent = t; e.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove('on'), 3500);
+}
+
+function threatList(color) {
+  const out = [];
+  for (let s = 0; s < 128; s++) {
+    if (s & 0x88) { s += 7; continue; }
+    const p = G.b[s];
+    if (p && colorOf(p) === color && p.toLowerCase() !== 'k' && G.threatened(s)) out.push(s);
+  }
+  return out;
+}
+function warnings() {
+  const out = [];
+  if (G.inCheck()) out.push('You are in check, so this move has to get your king out of it.');
+  for (const s of threatList(side)) {
+    const def = G.attackers(s, side).length;
+    out.push(`Your ${N[G.b[s].toLowerCase()]} on ${C.sqName(s)} is ${def ? 'attacked by a cheaper piece' : 'attacked and not defended'}.`);
+    if (out.length >= 3) break;
+  }
+  return out;
+}
+function explain(m) {
+  const out = [], us = G.turn, them = us === 'w' ? 'b' : 'w', pt = m.piece.toLowerCase();
+  const add = (p, t) => out.push({ p, t });
+  const san = G.san(m);
+  if (san.endsWith('#')) return ['Checkmate. This ends the game.'];
+  const before = threatList(us);
+  if (m.flags === 'k' || m.flags === 'q') add(50, 'Castles, so your king is safe and a rook joins the game.');
+  if (m.promo) add(75, `Turns the pawn into a ${N[m.promo]}.`);
+  if (m.cap) { const c = m.cap.toLowerCase(); add(c === 'p' ? 58 : 80, `Takes their ${N[c]} on ${C.sqName(m.to)}${m.flags === 'e' ? ' (en passant)' : ''}.`); }
+  if (pt !== 'k' && before.includes(m.from)) add(62, `Moves your ${N[pt]} out of danger.`);
+  G.make(m);
+  const mover = G.b[m.to].toLowerCase(), hit = [];
+  for (let s = 0; s < 128; s++) {
+    if (s & 0x88) { s += 7; continue; }
+    const p = G.b[s];
+    if (!p || colorOf(p) !== them || p.toLowerCase() === 'k') continue;
+    if (G.hits(m.to, s) && (!G.attackers(s, them).length || C.RANK[p.toLowerCase()] > C.RANK[mover])) hit.push(s);
+  }
+  hit.sort((a, b) => C.RANK[G.b[b].toLowerCase()] - C.RANK[G.b[a].toLowerCase()]);
+  const after = threatList(us);
+  G.unmake();
+  const label = s => `${N[G.b[s].toLowerCase()]} on ${C.sqName(s)}`;
+  const check = san.endsWith('+');
+  if (check && hit.length) add(88, `Checks the king and attacks their ${label(hit[0])} at the same time.`);
+  else if (check) add(64, 'Gives check, so they have to respond to it.');
+  else if (hit.length >= 2) add(90, `Forks their ${label(hit[0])} and ${label(hit[1])}.`);
+  else if (hit.length === 1) add(55, `Attacks their ${label(hit[0])}.`);
+  const saved = before.filter(s => s !== m.from && !after.includes(s));
+  if (saved.length && !m.cap) add(45, `Protects your ${label(saved[0])}.`);
+  if (!out.length) {
+    const back = us === 'w' ? (m.from >> 4) === 7 : (m.from >> 4) === 0;
+    if ((pt === 'n' || pt === 'b') && back) add(30, `Develops your ${N[pt]} off the back row, toward the centre.`);
+    else if (pt === 'p' && ((m.from & 7) === 3 || (m.from & 7) === 4) && G.full <= 12) add(25, 'Claims space in the centre with a pawn.');
+    else add(10, 'Quietly improves your position. Of everything checked, this held up best.');
+  }
+  return out.sort((a, b) => b.p - a.p).map(x => x.t);
+}
+function evalChip(s) {
+  if (Math.abs(s) > C.MATE - 1000) {
+    const n = Math.ceil((C.MATE - Math.abs(s)) / 2);
+    return s > 0 ? `You can force mate in ${n}` : `They can force mate in ${n}`;
+  }
+  const v = s / 100, a = Math.abs(v);
+  const word = a < 0.5 ? 'About equal' : v > 0 ? (a < 1.5 ? 'You’re slightly better' : a < 3 ? 'You’re better' : 'You’re winning') : (a < 1.5 ? 'They’re slightly better' : a < 3 ? 'They’re better' : 'They’re winning');
+  return `${word} ${v >= 0 ? '+' : '−'}${a.toFixed(1)}`;
+}
+function pvText(pv) {
+  const out = [];
+  let n = 0;
+  for (const mv of pv.slice(0, 6)) { const m = G.find(mv); if (!m) break; out.push(G.san(m)); G.make(m); n++; }
+  for (let i = 0; i < n; i++) G.unmake();
+  return out.join(' ');
+}
+
+function render() {
+  const legal = G.legal();
+  const last = G.hist.length ? G.hist[G.hist.length - 1].m : null;
+  const targets = sel >= 0 ? legal.filter(m => m.from === sel) : [];
+  const chk = G.inCheck() ? (G.turn === 'w' ? G.kw : G.kb) : -1;
+  let h = '';
+  for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) {
+    const r = side === 'w' ? i : 7 - i, f = side === 'w' ? j : 7 - j, s = r * 16 + f, p = G.b[s];
+    const tg = targets.find(m => m.to === s);
+    let cls = 'sq ' + ((r + f) % 2 ? 'd' : 'l');
+    if (last && (s === last.from || s === last.to)) cls += ' lm';
+    if (s === sel) cls += ' sel';
+    if (tg) cls += ' tg' + (tg.cap ? ' cap' : '');
+    if (s === chk) cls += ' chk';
+    const name = C.sqName(s) + (p ? ' ' + (C.isW(p) ? 'white ' : 'black ') + N[p.toLowerCase()] : '');
+    h += `<div class="${cls}" data-s="${s}" role="gridcell" aria-label="${name}">`;
+    if (j === 0) h += `<span class="co rk">${8 - r}</span>`;
+    if (i === 7) h += `<span class="co fl">${'abcdefgh'[f]}</span>`;
+    if (p) h += `<svg class="pc" viewBox="0 0 100 100"><use href="#${colorOf(p)}${p.toLowerCase()}"/></svg>`;
+    h += '</div>';
+  }
+  $('board').innerHTML = h;
+  drawArrow();
+  renderCoach(legal);
+  renderSheet();
+  $('undo').disabled = !G.hist.length;
+  $('undo').style.opacity = G.hist.length ? 1 : .35;
+}
+function drawArrow() {
+  const svg = $('arrow');
+  if (!sugg || thinking || G.turn !== side) { svg.innerHTML = ''; return; }
+  const pos = s => { const r = s >> 4, f = s & 7; return side === 'w' ? [f + 0.5, r + 0.5] : [7.5 - f, 7.5 - r]; };
+  const [x1, y1] = pos(sugg.move.from), [x2, y2] = pos(sugg.move.to);
+  const L = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / L, uy = (y2 - y1) / L, px = -uy, py = ux;
+  const hx = x2 - ux * 0.42, hy = y2 - uy * 0.42, sx = x1 + ux * 0.16, sy = y1 + uy * 0.16;
+  const pts = [[x2 - ux * 0.06, y2 - uy * 0.06], [hx + px * 0.28, hy + py * 0.28], [hx - px * 0.28, hy - py * 0.28]].map(p => p.map(n => n.toFixed(3)).join(',')).join(' ');
+  svg.innerHTML = `<g class="arw"><line x1="${sx}" y1="${sy}" x2="${hx}" y2="${hy}" stroke="var(--blue)" stroke-width="0.17" stroke-linecap="round"/><polygon points="${pts}" fill="var(--blue)"/></g>`;
+}
+let detailsHTML = '';
+const chev = '<svg class="i" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg>';
+const warnIcon = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 4.6 2.9 17.5A2 2 0 0 0 4.6 20.5h14.8a2 2 0 0 0 1.7-3L13.7 4.6a2 2 0 0 0-3.4 0Z"/><path d="M12 10v4"/><path d="M12 17h.01" stroke-width="2.6"/></svg>';
+function renderCoach(legal) {
+  const over = status(), mine = G.turn === side, you = side === 'w' ? 'White' : 'Black', they = side === 'w' ? 'Black' : 'White';
+  let h = '';
+  if (over) {
+    const t = { won: 'Checkmate. You win!', lost: 'Checkmate. They win this one.', stalemate: 'Stalemate. It’s a draw.', fifty: 'Draw by the 50-move rule.' }[over];
+    h = `<p class="cap">Game over</p><p class="t2">${t}</p><p class="body">Undo to try another line, or start fresh.</p><button type="button" class="tbtn" data-act="new">New game</button>`;
+  } else if (mine) {
+    h = `<p class="cap">Your move as ${you}</p>`;
+    const ws = warnings();
+    if (ws.length) h += `<div class="warn" role="note">${warnIcon}<span>${ws[0]}</span></div>`;
+    if (thinking || !sugg) {
+      h += `<div class="sg"><p class="san think"><span class="spin" aria-hidden="true"></span>Thinking…</p><button type="button" class="play" disabled>Play</button></div><p class="reason" style="color:var(--ink2)">Looking up to ${TIMES[think] / 1000} seconds ahead.</p>`;
+    } else {
+      const m = G.find(sugg.move), san = G.san(m, legal), why = explain(m);
+      const mate = Math.abs(sugg.score) > C.MATE - 1000;
+      const pct = mate ? (sugg.score > 0 ? 100 : 0) : Math.round(100 / (1 + 10 ** (-sugg.score / 400)));
+      h += `<div class="sg"><p class="san">${san}</p><button type="button" class="play" data-act="play" aria-label="Play ${san}">Play</button></div>`;
+      h += `<p class="reason">${why[0]}</p>`;
+      h += `<div class="foot"><span class="ev">${evalChip(sugg.score)}</span><button type="button" class="more" data-act="details">Details${chev}</button></div>`;
+      const rows = (pairs) => pairs.map(([k, v]) => `<div class="row"><span>${k}</span><span class="v">${v}</span></div>`).join('');
+      detailsHTML = `<p class="lab">Reasons</p><div class="group">${why.map(t => `<div class="row"><span>${t}</span></div>`).join('')}</div>`
+        + (ws.length ? `<p class="lab">Check before you move</p><div class="group">${ws.map(t => `<div class="row"><span>${t}</span></div>`).join('')}</div>` : '')
+        + `<p class="lab">Engine</p><div class="group">${rows([['Evaluation', evalChip(sugg.score)], ['Chance to win', pct + '%'], ['Looked ahead', sugg.depth + ' half-moves'], ['Positions checked', fmt(sugg.nodes)]])}</div>`
+        + `<p class="lab">Expected line</p><div class="group"><div class="row"><span>${pvText(sugg.pv)}</span></div></div>`;
+      $('tDetails').textContent = 'Why ' + san;
+    }
+  } else {
+    h = `<p class="cap">${they} to move</p><p class="t2">What did they play?</p><p class="body">Tap their piece, then where it went. Or type the move below.</p>`;
+  }
+  $('coach').innerHTML = h;
+  $('mv').placeholder = over ? 'Game over' : mine ? 'Or your own move' : 'Their move, e.g. Nf6';
+  $('mvlab').textContent = mine ? 'Your move' : 'Their move';
+}
+function renderSheet() {
+  let rows = '';
+  for (let i = 0; i < sans.length; i += 2) {
+    const now = k => k === sans.length - 1 ? ' class="now"' : '';
+    rows += `<tr><td>${i / 2 + 1}</td><td${now(i)}>${sans[i]}</td><td${now(i + 1)}>${sans[i + 1] || ''}</td></tr>`;
+  }
+  $('sheet').innerHTML = rows || `<tr><td></td><td colspan="2" class="empty">No moves yet.</td></tr>`;
+  $('exnote').hidden = !example;
+}
+function syncSeg() {
+  for (const b of document.querySelectorAll('#sideSeg button')) b.setAttribute('aria-pressed', String(b.dataset.side === side));
+  for (const b of document.querySelectorAll('#timeSeg button')) b.setAttribute('aria-pressed', String(b.dataset.think === think));
+}
+function newGame() { G = new C.Game(); sans = []; example = false; lastEval = null; update(); }
+
+function openS(id) {
+  closeS(true);
+  const s = $(id);
+  lastFocus = document.activeElement;
+  s.classList.add('open'); s.setAttribute('aria-hidden', 'false');
+  $('scrim').classList.add('open');
+  $('app').inert = true;
+  openSheet = s;
+  if (id === 'shMoves') { const b = $('movesBody'); b.scrollTop = b.scrollHeight; }
+  setTimeout(() => s.querySelector('[data-close]').focus({ preventScroll: true }), 60);
+}
+function closeS(quiet) {
+  if (!openSheet) return;
+  openSheet.classList.remove('open'); openSheet.setAttribute('aria-hidden', 'true'); openSheet.style.transform = '';
+  $('scrim').classList.remove('open');
+  $('app').inert = false;
+  openSheet = null;
+  if (!quiet && lastFocus) lastFocus.focus({ preventScroll: true });
+}
+for (const s of document.querySelectorAll('.sheet')) {
+  s.querySelector('[data-close]').addEventListener('click', () => closeS());
+  const hd = s.querySelector('.sh');
+  let y0 = null, dy = 0;
+  hd.addEventListener('touchstart', e => { y0 = e.touches[0].clientY; dy = 0; s.style.transition = 'none'; }, { passive: true });
+  hd.addEventListener('touchmove', e => { if (y0 === null) return; dy = Math.max(0, e.touches[0].clientY - y0); s.style.transform = `translateY(${dy}px)`; }, { passive: true });
+  hd.addEventListener('touchend', () => { s.style.transition = ''; if (dy > 90) closeS(); else s.style.transform = ''; y0 = null; });
+}
+$('scrim').addEventListener('click', () => closeS());
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeS(); });
+$('bSet').addEventListener('click', () => openS('shSet'));
+$('bMoves').addEventListener('click', () => openS('shMoves'));
+$('bInfo').addEventListener('click', () => openS('shInfo'));
+
+$('board').addEventListener('click', e => {
+  const el = e.target.closest('.sq');
+  if (!el || status()) return;
+  const s = +el.dataset.s, p = G.b[s];
+  if (sel >= 0) {
+    const ms = G.legal().filter(m => m.from === sel && m.to === s);
+    if (ms.length) { play(ms.find(m => !m.promo || m.promo === 'q')); return; }
+  }
+  sel = p && colorOf(p) === G.turn && s !== sel ? s : -1;
+  render();
+});
+$('panel').addEventListener('click', e => {
+  const a = e.target.closest('[data-act]');
+  if (!a) return;
+  if (a.dataset.act === 'play' && sugg) { const m = G.find(sugg.move); if (m) play(m); }
+  if (a.dataset.act === 'new') newGame();
+  if (a.dataset.act === 'details') { $('detailsBody').innerHTML = detailsHTML; openS('shDetails'); }
+});
+$('f').addEventListener('submit', e => {
+  e.preventDefault();
+  if (status()) return;
+  const v = $('mv').value.trim(), m = G.parse(v);
+  if (!m) { toast(v ? `"${v}" isn't a legal move here. Try Nf6, exd5 or O-O.` : 'Type a move first, like Nf6.'); return; }
+  $('mv').value = '';
+  $('mv').blur();
+  play(m);
+});
+$('sideSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; side = b.dataset.side; lastEval = null; syncSeg(); update(); });
+$('timeSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; think = b.dataset.think; syncSeg(); if (G.turn === side && !status()) { ask(); render(); } });
+$('undo').addEventListener('click', () => { if (!G.hist.length) return; G.unmake(); sans.pop(); update(); });
+$('newg').addEventListener('click', () => {
+  const b = $('newg');
+  if (!confirmT) { b.textContent = 'Tap again to clear the board'; confirmT = setTimeout(() => { confirmT = 0; b.textContent = 'New game'; }, 3000); return; }
+  clearTimeout(confirmT); confirmT = 0; b.textContent = 'New game';
+  newGame(); closeS();
+});
+$('copy').addEventListener('click', async () => {
+  const b = $('copy');
+  let txt = '';
+  for (let i = 0; i < sans.length; i += 2) txt += `${i / 2 + 1}. ${sans[i]}${sans[i + 1] ? ' ' + sans[i + 1] : ''} `;
+  try { await navigator.clipboard.writeText(txt.trim() || '(no moves)'); b.textContent = 'Copied'; }
+  catch (err) { b.textContent = 'Copying is blocked here'; }
+  setTimeout(() => { b.textContent = 'Copy moves'; }, 1600);
+});
+
+// Keep the move bar above the keyboard and shrink the board while typing
+const vv = window.visualViewport;
+function fit() {
+  const h = vv ? vv.height : window.innerHeight;
+  const root = document.documentElement;
+  root.style.setProperty('--vh', h + 'px');
+  root.style.setProperty('--vt', (vv ? vv.offsetTop : 0) + 'px');
+  $('app').classList.toggle('kb', window.innerHeight - h > 120);
+}
+(vv || window).addEventListener('resize', fit);
+if (vv) vv.addEventListener('scroll', fit);
+fit();
+
+window.claude?.hot?.snapshot?.(() => ({ moves: histMoves(), side, think, example }));
+function boot(d) {
+  if (!d || !Array.isArray(d.moves)) {
+    try { const saved = JSON.parse(localStorage.getItem('cmc-state') || 'null'); if (saved && Array.isArray(saved.moves)) d = saved; } catch (err) {}
+  }
+  d = d || {};
+  if (d.side === 'b') side = 'b';
+  if (TIMES[d.think]) think = d.think;
+  G = new C.Game(); sans = [];
+  if (Array.isArray(d.moves)) {
+    for (const mv of d.moves) { const m = G.find(mv); if (!m) break; sans.push(G.san(m)); G.make(m); }
+    example = !!d.example;
+  } else {
+    for (const s of EXAMPLE) { const m = G.parse(s); sans.push(G.san(m)); G.make(m); }
+    example = true;
+  }
+  syncSeg();
+  update();
+}
+window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
+}
+
+</script>
+<script>
+if ('serviceWorker' in navigator && window.isSecureContext) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
