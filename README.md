@@ -1,12 +1,57 @@
 # Chess Move Coach
 
-Enter your opponent's move and the engine suggests your best reply, with an explanation.
+A chess coach that runs entirely on your phone. Enter your opponent's move and it suggests your best reply and explains why. It can also review whole games and train you to find good moves yourself.
 
-- Written from scratch in JavaScript, with no chess libraries.
-- Move generator checked against standard perft counts.
-- Engine: alpha-beta minimax, iterative deepening, quiescence search, killer moves.
-- Evaluation: material plus piece-square tables.
-- Works offline as a Home Screen app (manifest + service worker).
+The chess engine is written from scratch in JavaScript, with no chess libraries.
 
-Files: `index.html` (the whole app), `manifest.webmanifest` (app name and icon),
-`sw.js` (offline support), `icon-*.png` (icons).
+## Features
+
+- **Best move:** an arrow on the board, the main reason in plain English, and details (evaluation, chance to win, expected line).
+- **Hint mode:** highlights which piece to move, so you find the move yourself.
+- **Training mode:** you play first, then the coach rates your move (best, good, inaccuracy, mistake or blunder) and keeps score.
+- **Game review:** paste a game from Chess.com or Lichess. You get accuracy for each side, a "who was winning" graph, turning points with explanations, and every move rated. Tap any move to open that position on the board.
+- **Warnings:** pieces of yours that are under attack are flagged before you move.
+- **Load a position:** paste a FEN to analyse any position.
+- **Works offline** as a Home Screen app, and remembers your game.
+
+## How the engine works
+
+| Part | What it does |
+|---|---|
+| Board | 0x88 board representation (128 squares), Zobrist hashing |
+| Move generator | All legal moves incl. castling, en passant and promotion. Verified with perft on 5 standard test positions (e.g. 197,281 positions at depth 4 from the start). |
+| Search | Iterative deepening alpha-beta with principal variation search, a transposition table, null-move pruning, late-move reductions, reverse futility pruning, check extensions, killer and history move ordering, and quiescence search |
+| Evaluation | Tapered middlegame/endgame scores: material, piece-square tables, passed, doubled and isolated pawns, mobility, rooks on open files and the 7th rank, bishop pair, pawn shield and king attack |
+| Opening book | About 35 main-line openings |
+| Game review | Win% from the evaluation; each move rated by how much win% it loses (inaccuracy 5+, mistake 10+, blunder 15+ points). Accuracy uses the Lichess formula. |
+
+## Measured strength
+
+Each version played matches against **Stockfish 19** with its strength limited to a set rating (`UCI_LimitStrength`), at 0.3 seconds per move, from 8 different openings played once with each colour (16 games per match).
+
+| Version | vs Stockfish 1700 | vs 2100 | vs 2400 | Estimated rating |
+|---|---|---|---|---|
+| v1 | 59% (9.5/16) | 28% (4.5/16) | n/a | about 1850 |
+| v2 | n/a | 56% (9/16) | 63% (10/16) | about 2300 |
+
+Head-to-head at 0.1 seconds per move, **v2 scored 90% against v1** (20 wins, 3 draws, 1 loss), about +370 rating points.
+
+What made the difference (each variant played 24 games against v1):
+
+| v2 variant | Score vs v1 |
+|---|---|
+| New search, simple v1 scoring | 73% |
+| Everything, harsh king-safety penalty | 73% |
+| Everything, no king safety | 85% then 75% (re-run) |
+| **Everything, softer king safety (final)** | **90%** |
+
+Lessons: the new search (transposition table and pruning) gave most of the gain, and a king-safety rule only helped once its penalty was made gentler.
+
+Caveats: 16–24 games per match is a small sample, so each number is roughly ±150 points. The ratings are on Stockfish's own scale and are not the same as Chess.com ratings.
+
+## Files
+
+- `index.html`: the whole app (engine, interface, pieces)
+- `manifest.webmanifest`: app name and icon for the Home Screen
+- `sw.js`: offline support (bump the version name after changing `index.html`)
+- `icon-*.png`: app icons
