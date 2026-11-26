@@ -56,3 +56,9 @@ Caveats: 16–24 games per match is a small sample, so each number is roughly ±
 - `manifest.webmanifest`: app name and icon for the Home Screen
 - `sw.js`: offline support (bump the version name after changing `index.html`)
 - `icon-*.png`: app icons
+
+## Copyright
+
+© 2026 Fazal Mahmood. All rights reserved.
+
+Move Coach is made for learning chess. Using it for help during live games on chess sites breaks their fair-play rules; use it to practise and to review finished games. Not affiliated with Chess.com, Lichess, Apple or the Stockfish project.
