@@ -7,7 +7,7 @@ The chess engine is written from scratch in JavaScript, with no chess libraries.
 ## Features
 
 - **Welcome screen:** continue your last game, or start a new one.
-- **Play the coach:** play the computer at four strengths (Beginner, Casual, Club, Strong). Every move you make is rated. After any move that isn't the best, the game pauses for a short lesson on the board: your move against the better one, the better plan played out a few moves ahead with reasons, what your move allows, and a takeaway. Then try again, play the better move, or continue.
+- **Play the coach:** play the computer at four strengths (Beginner, Casual, Club, Strong). The coach reacts like a human coach: a quiet ✓ for good moves, praise for strong finds, a short note when a slightly better move existed (with a **Why?** lesson on request), and it stops the game with a question when a move really costs you. Lessons run in labelled sections on the board: your move, what it allows, the better plan, and a takeaway. It also gives a heads-up when a tactic is waiting, and notices repeated habits.
 - **Game helper:** enter your opponent's moves and get your best reply, with hint and training modes.
 - **Who's winning bar** under the board, updated after every move.
 - **Game review:** paste a game from Chess.com or Lichess for accuracy, a "who was winning" graph, and turning points. Tap any move for a step-by-step walkthrough showing why it was a mistake and what it cost.

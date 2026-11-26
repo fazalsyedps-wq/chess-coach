@@ -215,14 +215,16 @@ svg.ch{width:15px;height:15px;color:var(--ink3);stroke-width:2.2}
 .tl h1{font-size:min(1.4rem,30px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .seg button{padding:0 4px}
 .fbx{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-.fbx button{flex:1;min-height:40px;padding:0 12px;border-radius:999px;background:var(--fill);font-weight:600;font-size:.88rem;white-space:nowrap}
+.fbx button{flex:1 1 auto;min-height:40px;padding:0 14px;border-radius:999px;background:var(--fill);font-weight:600;font-size:.88rem;white-space:nowrap}
 .fbx button.pri{background:var(--blue);color:#fff}
 .pills{display:flex;gap:10px;margin-top:16px}
 .pills button{min-height:44px;padding:0 18px;border-radius:999px;background:var(--fill);font-weight:600}
 .pills button:disabled{opacity:.4}
 .bestline{margin:14px 0 0;padding:12px 14px;border-radius:16px;background:color-mix(in srgb,var(--blue) 10%,transparent)}
 .bestline b{color:var(--blue)}
-.lt{margin:18px 0 6px;font-size:min(1.2rem,30px);font-weight:700;letter-spacing:-.01em}
+.sec{display:flex;align-items:center;gap:8px;margin:18px 0 0;font-size:.82rem;font-weight:600;color:var(--ink2)}
+.sec span{width:8px;height:8px;border-radius:50%}
+.lt{margin:6px 0 6px;font-size:min(1.2rem,30px);font-weight:700;letter-spacing:-.01em}
 .lx{color:var(--ink)}
 .lact{margin-top:20px}
 .hero{position:relative;margin:12px 20px 0;border-radius:28px;overflow:hidden;background:linear-gradient(155deg,#0a84ff 0%,#3d5cf5 48%,#5e5ce6 100%);color:#fff;box-shadow:0 18px 40px -18px rgba(40,60,200,.55)}
@@ -258,6 +260,12 @@ svg.ch{width:15px;height:15px;color:var(--ink3);stroke-width:2.2}
 .legal b{display:block;font-weight:600;margin-bottom:3px}
 .legal span{color:var(--ink2);font-size:.94rem;line-height:1.4}
 .oops{position:fixed;left:16px;right:16px;top:calc(var(--sat) + 10px);z-index:50;margin:0 auto;max-width:520px;padding:12px 16px;border-radius:16px;background:var(--red);color:#fff;font-size:.88rem;font-weight:500;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.fbq{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:.88rem;color:var(--ink2)}
+.fbq .ic{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12px;font-weight:700;flex:none;background:light-dark(#34c759,#30d158)}
+.whyb{margin-top:10px;min-height:36px;padding:0 16px;border-radius:999px;background:color-mix(in srgb,var(--blue) 12%,transparent);color:var(--blue);font-weight:600;font-size:.88rem}
+.fb.stop{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--orange) 55%,transparent)}
+.chance{display:flex;gap:10px;align-items:center;margin:12px 0 0;padding:11px 14px;border-radius:16px;background:color-mix(in srgb,var(--blue) 11%,transparent);font-size:.88rem}
+.chance svg{flex:none;width:20px;height:20px;color:var(--blue)}
 @media(prefers-reduced-motion:reduce){#evfill{transition:none}.arw,.spin{animation:none}.sheet,.scrim,.toast{transition:none}}
 </style>
 </head>
@@ -1289,6 +1297,7 @@ let sans = [], sel = -1, sugg = null, thinking = false, revealed = false, exampl
 let train = { found: 0, total: 0 }, feedback = null;
 let toastT = 0, confirmT = 0, openSheet = null, lastFocus = null, detailsHTML = '';
 let review = null, reviewGame = null;
+let pendingJudge = null, lastJudge = null, habits = {};
 let screen = 'home', appMode = 'helper', level = 'casual', playAs = 'w', holdReply = false, engineBusy = false, engId = 0, hintOn = false;
 const LEVEL_NAMES = { beginner: 'Beginner', casual: 'Casual', club: 'Club', strong: 'Strong' };
 const LEVEL_NOTES = { beginner: 'Makes simple mistakes. Good for learning the basics.', casual: 'Looks one move ahead and plays loosely.', club: 'Looks a few moves ahead, like a solid club player.', strong: 'The full engine. Very hard to beat.' };
@@ -1371,7 +1380,10 @@ let coachId = 0, judgeId = 0, reviewId = 0;
 const coachW = pool(d => {
   if (d.type !== 'search') return;
   if (d.id === coachId) {
-    thinking = false; sugg = d.r;
+    thinking = false;
+    if (pendingJudge) { resolvePending(d.r); return; }
+    sugg = d.r;
+    if (sugg && appMode === 'play' && G.turn === side) sugg.chance = opportunity(sugg);
     if (d.r && !d.r.book) whiteEval = G.turn === 'w' ? d.r.score : -d.r.score;
     else if (d.r && d.r.book) whiteEval = 0;
     render();
@@ -1415,6 +1427,7 @@ function save() {
 function snapshot() { return { start: G.startFen, moves: histMoves(), side, think, mode, example, train, appMode, level, playAs }; }
 function update() {
   sel = -1;
+  if (pendingJudge) { render(); save(); return; }
   const over = status();
   if (!over && G.turn === side) ask();
   else {
@@ -1430,21 +1443,46 @@ function update() {
 }
 function play(m) {
   const mine = G.turn === side;
-  const judge = mine && !revealed && (appMode === 'play' || mode === 'train');
-  if (judge) {
-    if (thinking || !sugg) { toast('One moment, the coach is still thinking.'); return; }
-    startJudging(m);
-  } else if (mine) feedback = null;
+  if (pendingJudge && !mine) { pendingJudge = null; feedback = null; coachId++; }
+  let judge = mine && !revealed && (appMode === 'play' || mode === 'train');
+  if (judge && thinking) {
+    // The coach is still analysing this position. Play the move straight away
+    // and rate it as soon as the analysis arrives.
+    const san = G.san(m);
+    pendingJudge = { m: { from: m.from, to: m.to, promo: m.promo } };
+    feedback = { kind: 'w', a: `Checking ${san}\u2026`, c: '', done: false };
+    if (appMode === 'play') holdReply = true;
+    sans.push(san); G.make(m); sel = -1;
+    render(); save();
+    return;
+  }
+  if (judge && !sugg) judge = false;
+  if (judge) startJudging(m);
+  else if (mine) feedback = null;
   if (mine && appMode === 'play') holdReply = true;
   sans.push(G.san(m)); G.make(m);
   update();
   if (mine && appMode === 'play' && (!feedback || feedback.done)) afterVerdict();
 }
+function resolvePending(r) {
+  pendingJudge = null;
+  const last = G.hist.length ? G.hist[G.hist.length - 1].m : null;
+  if (!r || !r.move || !last) { feedback = null; holdReply = false; update(); return; }
+  whiteEval = side === 'w' ? r.score : -r.score;
+  G.unmake();
+  sugg = r; revealed = false;
+  const m = G.find({ from: last.from, to: last.to, promo: last.promo });
+  startJudging(m);
+  G.make(m);
+  sugg = null;
+  if (feedback && feedback.done) { if (appMode === 'play') afterVerdict(); else update(); }
+  else render();
+}
 // In a coach game, the computer replies straight away after a good move,
 // but waits after an inaccuracy, mistake or blunder so you can try again.
 function afterVerdict() {
   if (appMode !== 'play') return;
-  const bad = !!feedback && ['i', 'm', 'b'].includes(feedback.kind);
+  const bad = !!feedback && feedback.style === 'stop';
   holdReply = bad;
   if (!bad) setTimeout(() => { if (appMode === 'play' && screen === 'game' && G.turn !== side && !status() && !holdReply && !engineBusy) { engineMove(); render(); } }, 500);
   render();
@@ -1455,6 +1493,15 @@ function toast(t) {
 }
 
 // ---------------- training: judge the player's own move ----------------
+function opportunity(s) {
+  if (!s || !s.move) return null;
+  if (s.score > C.MATE - 1000) return 'Look closely: you can force checkmate from here.';
+  const line = trimLine(G, (s.pv || []).slice(0, 6)), res = lineOutcome(G, line);
+  const gain = net(res.won[G.turn], res.won[G.turn === 'w' ? 'b' : 'w']);
+  if (gain.diff >= 5) return 'Look closely: there’s a way to win a lot of material here.';
+  if (gain.diff >= 2) return 'Look closely: there’s a way to win material here.';
+  return null;
+}
 function startJudging(m) {
   const best = G.find(sugg.move), san = G.san(m), bestSan = G.san(best);
   const why = explain(best)[0];
@@ -1462,37 +1509,77 @@ function startJudging(m) {
   train.total++;
   if (same(m, sugg.move)) {
     train.found++;
-    feedback = { kind: 'g', a: appMode === 'play' ? `Best move! ${san} is exactly right.` : `${san} is the best move!`, c: why, done: true };
+    if (appMode === 'play') {
+      const special = /^(Checkmate|Forks|Checks the king and attacks|Takes their (knight|bishop|rook|queen))/.test(why);
+      feedback = special ? { style: 'tell', kind: 'g', a: pickPhrase(PRAISE_BIG), c: why, done: true }
+        : { style: 'quiet', kind: 'g', a: `${san}: ${pickPhrase(PRAISE)}`, done: true };
+    } else feedback = { kind: 'g', a: `${san} is the best move!`, c: why, done: true };
   } else if (inBook) {
     train.found++;
-    feedback = { kind: 'g', a: `${san} is a main-line opening move.`, c: `The coach would also consider ${bestSan}.`, done: true };
+    feedback = appMode === 'play' ? { style: 'quiet', kind: 'g', a: `${san}: a main-line opening move.`, done: true }
+      : { kind: 'g', a: `${san} is a main-line opening move.`, c: `The coach would also consider ${bestSan}.`, done: true };
   } else {
     feedback = { kind: 'w', a: `Checking ${san}…`, c: '', done: false, san, bestSan, why, best: sugg.score, bookBest: !!sugg.book, prev: sugg, base: histMoves(), played: { from: m.from, to: m.to, promo: m.promo } };
     const moves = histMoves().concat([{ from: m.from, to: m.to, promo: m.promo }]);
     judgeW.send({ type: 'search', id: ++judgeId, fen: G.startFen, moves, time: Math.min(TIMES[think], 2000), book: false });
   }
 }
+const PRAISE = ['best move.', 'spot on.', 'exactly right.', 'that’s the move.', 'well played.'];
+const PRAISE_BIG = ['Great find!', 'Excellent, you spotted it!', 'Nice tactic!', 'That’s a strong move!'];
+const pickPhrase = list => list[Math.floor(Math.random() * list.length)];
 function judged(r) {
   const f = feedback;
+  if (r) whiteEval = G.turn === 'w' ? r.score : -r.score;
   const mine = r ? -r.score : f.best;
   const bestScore = f.bookBest ? Math.max(mine, 0) : f.best;
   const loss = Math.max(0, C.winPct(cpOf(bestScore)) - C.winPct(cpOf(mine)));
+  if (appMode === 'play' && f.base) { coachVerdict(f, r, loss); return; }
   let kind, head;
   if (loss < 2) { kind = 'g'; head = `Excellent! ${f.san} is as good as the best move.`; train.found++; }
   else if (loss < 5) { kind = 'g'; head = `Good move. ${f.san} keeps you on track.`; }
   else if (loss < 10) { kind = 'i'; head = `${f.san} is an inaccuracy.`; }
   else if (loss < 15) { kind = 'm'; head = `${f.san} is a mistake.`; }
   else { kind = 'b'; head = `${f.san} is a blunder.`; }
-  feedback = { kind, a: head, c: kind === 'g' && loss < 2 ? `The coach\u2019s pick was ${f.bestSan}: ${lc(f.why)}` : `Best was ${f.bestSan}: ${lc(f.why)}`, done: true, prev: f.prev };
-  save();
-  if (appMode === 'play' && loss >= 2 && f.base) {
-    study = buildLesson(f, r, kind, kind === 'g' ? `Good, but ${f.bestSan} was better` : head);
-    holdReply = true;
-    $('app').classList.add('studying');
-    render();
-  } else if (appMode === 'play') afterVerdict(); else render();
+  feedback = { kind, a: head, c: kind === 'g' && loss < 2 ? `The coach’s pick was ${f.bestSan}: ${lc(f.why)}` : `Best was ${f.bestSan}: ${lc(f.why)}`, done: true, prev: f.prev };
+  save(); render(); askEval();
 }
-
+// How a human coach reacts: quiet when it doesn't matter, a word when it could be better,
+// and a stop (with a question first) when the move really costs you.
+function coachVerdict(f, r, loss) {
+  const gb = new C.Game(G.startFen);
+  for (const mv of f.base) { const x = gb.find(mv); if (x) gb.make(x); }
+  const me = gb.turn, them = me === 'w' ? 'b' : 'w';
+  const played = gb.find(f.played), best = gb.find(f.prev.move);
+  let tip = principleTip(gb, played, best);
+  if (tip) {
+    const key = tip.slice(0, 24);
+    habits[key] = (habits[key] || 0) + 1;
+    if (habits[key] >= 2) tip = `That’s ${habits[key] === 2 ? 'the second time' : habits[key] + ' times'} now. ${tip}`;
+  }
+  const line = trimLine(gb, [f.played].concat((r && r.pv) || []).slice(0, 7));
+  const res = lineOutcome(gb, line), lost = net(res.won[them], res.won[me]);
+  const why = lc(f.why);
+  let tier;
+  if (loss < 1.5) tier = 'best'; else if (loss < 4) tier = 'fine'; else if (loss < 9) tier = 'inacc'; else if (loss < 18) tier = 'mistake'; else tier = 'blunder';
+  if (res.mated === me || lost.diff >= 2) tier = tier === 'best' || tier === 'fine' || tier === 'inacc' ? 'mistake' : tier;
+  lastJudge = { f, r, tier };
+  if (tier === 'best') {
+    train.found++;
+    feedback = { style: 'quiet', kind: 'g', a: `${f.san}: as good as the best move.`, done: true };
+  } else if (tier === 'fine') {
+    feedback = { style: 'tell', kind: 'g', a: `Fine. ${f.bestSan} was a little more precise.`, c: tip || `It ${why}`, done: true, why: true };
+  } else if (tier === 'inacc') {
+    feedback = { style: 'tell', kind: 'i', a: `${f.bestSan} was stronger than ${f.san}.`, c: tip || `It ${why}`, done: true, why: true };
+  } else {
+    let q;
+    if (res.mated === me) q = 'Careful: that move allows a checkmate. Can you see how?';
+    else if (lost.diff >= 1) q = `Hold on: that move lets them win ${wins(lost)}. Can you see how?`;
+    else q = `Hold on: ${f.san} gives your opponent a strong reply. Can you find it?`;
+    feedback = { style: 'stop', kind: tier === 'blunder' ? 'b' : 'm', a: q, c: tip || '', done: true };
+  }
+  save();
+  afterVerdict();
+}
 // ---------------- explanations ----------------
 function threatList(color, g = G) {
   const out = [];
@@ -1545,7 +1632,7 @@ function explain(m, g = G) {
   if (g === G && sugg && sugg.book && same(m, sugg.move)) add(40, 'A main-line opening move from the opening book.');
   const back = us === 'w' ? (m.from >> 4) === 7 : (m.from >> 4) === 0;
   if ((pt === 'n' || pt === 'b') && back) add(30, `Develops your ${N[pt]} off the back row, toward the centre.`);
-  else if (pt === 'p' && ((m.from & 7) === 3 || (m.from & 7) === 4) && g.full <= 12) add(25, 'Claims space in the centre with a pawn.');
+  else if (pt === 'p' && !m.cap && [3, 4].includes(m.to & 7) && [3, 4].includes(m.to >> 4) && g.full <= 12) add(25, 'Claims space in the centre with a pawn.');
   if (!out.length) add(10, 'Quietly improves your position. Of everything checked, this held up best.');
   return out.sort((a, b) => b.p - a.p).map(x => x.t);
 }
@@ -1642,9 +1729,13 @@ function drawArrow() {
 }
 function fbHTML() {
   if (!feedback) return '';
-  const acts = appMode === 'play' && holdReply && feedback.done
-    ? `<div class="fbx"><button type="button" data-act="retry">Try again</button><button type="button" data-act="showbest">Show best</button><button type="button" class="pri" data-act="cont">Continue</button></div>` : '';
-  return `<div class="fb"><span class="ic ${feedback.kind}" aria-hidden="true">${FB_ICON[feedback.kind]}</span><div style="flex:1"><p class="a">${esc(feedback.a)}</p>${feedback.c ? `<p class="c">${esc(feedback.c)}</p>` : ''}${acts}</div></div>`;
+  const f = feedback;
+  if (f.style === 'quiet') return `<div class="fbq"><span class="ic g" aria-hidden="true">✓</span><span>${esc(f.a)}</span></div>`;
+  let acts = '';
+  if (appMode === 'play' && f.style === 'tell' && f.why && lastJudge) acts = `<button type="button" class="whyb" data-act="why">Why?</button>`;
+  if (appMode === 'play' && f.style === 'stop' && holdReply) acts = `<div class="fbx"><button type="button" data-act="retry">Take it back</button><button type="button" class="pri" data-act="lesson">Show me</button><button type="button" data-act="cont">Keep my move</button></div>`;
+  else if (appMode === 'play' && holdReply && f.done && !f.style) acts = `<div class="fbx"><button type="button" data-act="retry">Try again</button><button type="button" data-act="showbest">Show best</button><button type="button" class="pri" data-act="cont">Continue</button></div>`;
+  return `<div class="fb ${f.style || ''}"><span class="ic ${f.kind}" aria-hidden="true">${FB_ICON[f.kind]}</span><div style="flex:1"><p class="a">${esc(f.a)}</p>${f.c ? `<p class="c">${esc(f.c)}</p>` : ''}${acts}</div></div>`;
 }
 function renderPlay(legal, over, mine, you, they) {
   let h = fbHTML();
@@ -1655,6 +1746,7 @@ function renderPlay(legal, over, mine, you, they) {
     h += `<p class="cap">Your move as ${you}, against the ${LEVEL_NAMES[level]} computer</p>`;
     const ws = warnings();
     if (ws.length) h += `<div class="warn" role="note">${warnIcon}<span>${ws[0]}</span></div>`;
+    if (!revealed && sugg && sugg.chance) h += `<div class="chance" role="note"><svg class="i" aria-hidden="true"><use href="#i-spark"/></svg><span>${sugg.chance}</span></div>`;
     if (revealed && sugg) {
       const m = G.find(sugg.move);
       h += `<div class="bestline"><b>Best: ${G.san(m, legal)}</b><br>${explain(m)[0]}</div>`;
@@ -1801,7 +1893,7 @@ function renderHome() {
 }
 function showHome() {
   screen = 'home';
-  coachW.stop(); engineW.stop(); judgeW.stop(); engineBusy = false; thinking = false;
+  coachW.stop(); engineW.stop(); judgeW.stop(); engineBusy = false; thinking = false; pendingJudge = null;
   if (study) { study = null; $('app').classList.remove('studying'); }
   holdReply = false;
   $('app').hidden = true; $('home').hidden = false;
@@ -1813,7 +1905,7 @@ function showGame() {
   syncSeg();
 }
 function startCoachGame() {
-  appMode = 'play';
+  appMode = 'play'; habits = {}; lastJudge = null;
   side = playAs === 'r' ? (Math.random() < 0.5 ? 'w' : 'b') : playAs;
   setGame(null, []); train = { found: 0, total: 0 }; holdReply = false; engineBusy = false;
   closeS(true); $('app').inert = false;
@@ -2066,7 +2158,7 @@ function principleTip(g, m, best) {
   if (castles(best) && !castles(m)) return 'Castling now would get your king to safety and bring a rook into the game.';
   return null;
 }
-function buildLesson(f, r, kind, head) {
+function buildLesson(f, r, kind, head, view) {
   const gb = new C.Game(G.startFen);
   for (const mv of f.base) { const x = gb.find(mv); if (x) gb.make(x); }
   const me = gb.turn, them = me === 'w' ? 'b' : 'w';
@@ -2076,55 +2168,69 @@ function buildLesson(f, r, kind, head) {
   const toWhite = s => side === 'w' ? s : -s;
   const mineScore = r ? -r.score : f.best;
   const pBest = Math.round(C.winPct(cpOf(f.best))), pMine = Math.round(C.winPct(cpOf(mineScore)));
+  const both = [{ m: played, c: 'var(--red)' }, { m: best, c: 'var(--blue)' }];
   const frames = [];
+  // 1. your move against the better one
   frames.push({
-    moves: f.base, eval: toWhite(f.best),
-    arrows: [{ m: played, c: 'var(--red)' }, { m: best, c: 'var(--blue)' }],
-    title: `You played ${playedSan}. The coach prefers ${bestSan}.`,
-    text: (tip ? tip + ' ' : '') + 'Red arrow: your move. Blue arrow: the better move. Tap Next to see the plan behind it.'
+    sec: 'you', moves: f.base, eval: toWhite(f.best), arrows: both,
+    title: `You played ${playedSan}. ${bestSan} was better.`,
+    text: (tip ? tip + ' ' : '') + 'Red arrow: your move. Blue arrow: the better move.'
   });
-  // the better plan, a few moves deep
-  const plan = (f.prev.pv || []).slice(0, 4);
+  // 2. what your move allows: their best reply, played out a little
+  gb.make(played);
+  const reply = trimLine(gb, ((r && r.pv) || []).slice(0, 6)).slice(0, 5);
   let made = 0;
-  for (let s = 0; s < plan.length; s++) {
-    const m = gb.find(plan[s]);
+  for (let k = 0; k < reply.length; k++) {
+    const m = gb.find(reply[k]);
     if (!m) break;
-    const mover = gb.turn, san = gb.san(m), reasons = explain(m, gb);
+    const mover = gb.turn, san = gb.san(m);
     frames.push({
-      moves: f.base.concat(plan.slice(0, s)), eval: null,
+      sec: 'allows', moves: f.base.concat([f.played], reply.slice(0, k)), eval: k === 0 ? toWhite(mineScore) : null,
       arrows: [{ m, c: mover === side ? 'var(--blue)' : 'var(--orange)' }],
-      title: s === 0 ? `The better plan starts with ${san}` : mover === side ? `Then you play ${san}` : `They would likely answer ${san}`,
-      text: povFor(reasons.slice(0, 2).join(' '), mover)
+      title: k === 0 ? `After ${playedSan}, they can play ${san}` : mover === side ? `Then you would play ${san}` : `Then they play ${san}`,
+      text: povFor(explain(m, gb).slice(0, 2).join(' '), mover)
     });
     gb.make(m); made++;
   }
   for (let j = 0; j < made; j++) gb.unmake();
-  // what the move actually played allows
-  gb.make(played);
-  const reply = r && r.pv && r.pv[0] ? gb.find(r.pv[0]) : null;
-  if (reply) frames.push({
-    moves: f.base.concat([f.played]), eval: toWhite(mineScore),
-    arrows: [{ m: reply, c: 'var(--orange)' }],
-    title: `After your ${playedSan}, they can play ${gb.san(reply)}`,
-    text: povFor(explain(reply, gb).slice(0, 2).join(' '), gb.turn)
-  });
   gb.unmake();
+  // 3. rewind: the better plan
+  const plan = (f.prev.pv || []).slice(0, 4);
+  made = 0;
+  for (let s = 0; s < plan.length; s++) {
+    const m = gb.find(plan[s]);
+    if (!m) break;
+    const mover = gb.turn, san = gb.san(m);
+    frames.push({
+      sec: 'plan', moves: f.base.concat(plan.slice(0, s)), eval: s === 0 ? toWhite(f.best) : null,
+      arrows: [{ m, c: mover === side ? 'var(--blue)' : 'var(--orange)' }],
+      title: s === 0 ? `Instead, play ${san}` : mover === side ? `Then you play ${san}` : `They would likely answer ${san}`,
+      text: povFor(explain(m, gb).slice(0, 2).join(' '), mover)
+    });
+    gb.make(m); made++;
+  }
+  for (let j = 0; j < made; j++) gb.unmake();
+  // 4. takeaway, back on the original position
   const line = trimLine(gb, [f.played].concat((r && r.pv) || []).slice(0, 7));
   const res = lineOutcome(gb, line), lost = net(res.won[them], res.won[me]);
   let end;
-  if (res.mated === me) end = 'Your move allows checkmate. Before every move, ask what your opponent can do next.';
-  else if (lost.diff >= 1) end = `Your move lets them win ${wins(lost)}. Before moving, check that every piece you move is still protected.`;
-  else end = `With ${bestSan} your chance to win would be about ${pBest}%. After ${playedSan} it’s about ${pMine}%.`;
+  if (res.mated === me) end = `${playedSan} allows checkmate. Before every move, ask what your opponent can do next.`;
+  else if (lost.diff >= 1) end = `${playedSan} lets them win ${wins(lost)}. Before moving, check that every piece is still protected.`;
+  else end = `With ${bestSan} your chance to win is about ${pBest}%. After ${playedSan} it’s about ${pMine}%.`;
   if (tip) end += ' Remember: ' + lc(tip.split('. ')[0]) + '.';
-  frames.push({ moves: f.base.concat([f.played]), eval: toWhite(mineScore), arrows: [], title: 'The takeaway', text: end });
-  return { lesson: true, fen: G.startFen, frames, step: 0, side, kind, head, playedSan, bestSan, best: f.prev.move };
+  frames.push({ sec: 'end', moves: f.base, eval: toWhite(f.best), arrows: both, title: 'The takeaway', text: end });
+  return { lesson: true, view: !!view, fen: G.startFen, frames, step: 0, side, kind, head, playedSan, bestSan, best: f.prev.move };
 }
+const SECTIONS = { you: ['Your move', 'var(--red)'], allows: ['What your move allows', 'var(--orange)'], plan: ['Rewind: the better plan', 'var(--blue)'], end: ['Takeaway', 'var(--ink2)'] };
 function renderLesson() {
   const f = study.frames[study.step], n = study.frames.length;
-  let h = `<div class="fb"><span class="ic ${study.kind}" aria-hidden="true">${FB_ICON[study.kind]}</span><div style="flex:1"><p class="a">${esc(study.head)}</p><p class="c">Coach lesson, step ${study.step + 1} of ${n}</p></div></div>`;
-  h += `<p class="lt">${esc(f.title)}</p><p class="body lx">${esc(f.text)}</p>`;
+  const sec = SECTIONS[f.sec] || SECTIONS.end;
+  let h = `<div class="fb"><span class="ic ${study.kind}" aria-hidden="true">${FB_ICON[study.kind]}</span><div style="flex:1"><p class="a">${esc(study.head)}</p><p class="c">Coach lesson</p></div></div>`;
+  h += `<p class="sec"><span style="background:${sec[1]}"></span>${sec[0]}</p><p class="lt">${esc(f.title)}</p><p class="body lx">${esc(f.text)}</p>`;
   h += `<div class="stepper"><button type="button" class="sbtn" data-act="sprev"${study.step === 0 ? ' disabled' : ''}>Back</button><span>${study.step + 1} of ${n}</span><button type="button" class="sbtn pri" data-act="snext"${study.step === n - 1 ? ' disabled' : ''}>Next</button></div>`;
-  h += `<div class="fbx lact"><button type="button" data-act="lretry">Try again</button><button type="button" data-act="lbest">Play ${esc(study.bestSan)}</button><button type="button" class="pri" data-act="lcont">Continue</button></div>`;
+  h += study.view
+    ? `<div class="fbx lact"><button type="button" class="pri" data-act="lclose">Back to the game</button></div>`
+    : `<div class="fbx lact"><button type="button" data-act="lretry">Take it back</button><button type="button" data-act="lbest">Play ${esc(study.bestSan)}</button><button type="button" class="pri" data-act="lcont">Keep my move</button></div>`;
   $('coach').innerHTML = h;
 }
 function endLesson() { study = null; $('app').classList.remove('studying'); }
@@ -2211,9 +2317,20 @@ $('panel').addEventListener('click', e => {
   if (act === 'again') { openS('shPlay'); return; }
   if (act === 'reveal' && appMode === 'play') { revealed = true; train.total++; render(); save(); return; }
   if (act === 'reveal') { revealed = true; if (mode === 'train') { train.total++; feedback = { kind: 'w', a: 'Answer shown.', c: 'This one doesn’t count as found.', done: true }; } render(); save(); }
+  if (act === 'why' && lastJudge) {
+    const j = lastJudge, kind = feedback ? feedback.kind : 'i';
+    study = buildLesson(j.f, j.r, kind, feedback ? feedback.a : 'Why the other move was better', true);
+    $('app').classList.add('studying'); render(); return;
+  }
+  if (act === 'lesson' && lastJudge) {
+    const j = lastJudge;
+    study = buildLesson(j.f, j.r, feedback ? feedback.kind : 'm', feedback ? feedback.a : 'Coach lesson', false);
+    $('app').classList.add('studying'); render(); return;
+  }
+  if (act === 'lclose' && study) { endLesson(); render(); return; }
   if (act === 'lcont' && study) {
     const s = study; endLesson();
-    holdReply = false; feedback = { kind: s.kind, a: s.head, c: `Best was ${s.bestSan}.`, done: true };
+    holdReply = false; feedback = { style: 'tell', kind: s.kind, a: `You kept your move. ${s.bestSan} was better.`, done: true };
     if (G.turn !== side && !status()) engineMove();
     render(); save(); return;
   }
@@ -2247,7 +2364,7 @@ $('sideSeg').addEventListener('click', e => { const b = e.target.closest('button
 $('timeSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; think = b.dataset.think; syncSeg(); if (G.turn === side && !status()) { ask(); render(); } save(); });
 $('modeSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; mode = b.dataset.mode; revealed = false; feedback = null; syncSeg(); render(); save(); });
 $('rvSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; rvDepth = b.dataset.rv; syncSeg(); });
-$('undo').addEventListener('click', () => { if (!G.hist.length) return; G.unmake(); sans.pop(); feedback = null; update(); });
+$('undo').addEventListener('click', () => { if (!G.hist.length) return; pendingJudge = null; coachId++; G.unmake(); sans.pop(); feedback = null; holdReply = false; update(); });
 $('newg').addEventListener('click', () => {
   const b = $('newg');
   if (!confirmT) { b.textContent = 'Tap again to clear the board'; confirmT = setTimeout(() => { confirmT = 0; b.textContent = 'New game'; }, 3000); return; }
