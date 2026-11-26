@@ -32,6 +32,7 @@
 --bs:min(calc(100vw - 56px),500px)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
 html{font-size:17px;-webkit-text-size-adjust:100%}
 @supports (-webkit-touch-callout:none){html{font:-apple-system-body}}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg)}
@@ -49,7 +50,7 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 h1{margin:0;font-size:min(1.65rem,34px);font-weight:700;letter-spacing:-.025em}
 .gb{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;flex:none;color:var(--ink)}
 .gb:active{transform:scale(.94)}
-.bw{display:grid;grid-template-columns:16px var(--bs);grid-template-rows:var(--bs) 20px;width:max-content;margin:18px auto 0;flex:none}
+.bw{display:grid;grid-template-columns:16px var(--bs);grid-template-rows:var(--bs) 20px 34px;width:max-content;margin:18px auto 0;flex:none}
 .bb{position:relative;width:var(--bs);height:var(--bs)}
 .ranks{display:grid;grid-template-rows:repeat(8,1fr);align-items:center;font-size:11px;font-weight:600;color:var(--ink3);letter-spacing:0}
 .files{display:grid;grid-template-columns:repeat(8,1fr);align-items:end;text-align:center;font-size:11px;font-weight:600;color:var(--ink3);letter-spacing:0;line-height:1}
@@ -65,8 +66,9 @@ h1{margin:0;font-size:min(1.65rem,34px);font-weight:700;letter-spacing:-.025em}
 .rk{top:5px;left:6px}.fl{bottom:5px;left:6px}
 .l .co{color:#8e8e93}.d .co{color:#f2f2f7}
 .pc{width:100%;height:100%;pointer-events:none;position:absolute;inset:0}
+.pc.w{filter:drop-shadow(0 .8px 1px rgba(0,0,0,.38)) drop-shadow(0 0 .6px rgba(0,0,0,.3))}
 #arrow{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.arw{opacity:.9;animation:fade .3s ease-out}
+.arw{opacity:.62;animation:fade .3s ease-out}
 @keyframes fade{from{opacity:0}}
 .scroll{flex:1;overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .scroll::-webkit-scrollbar{display:none}
@@ -105,6 +107,7 @@ h1{margin:0;font-size:min(1.65rem,34px);font-weight:700;letter-spacing:-.025em}
 .toast.on{opacity:1;transform:none}
 .kb .panel,.kb .fade{display:none}
 .kb{--bs:min(calc(100vw - 56px),500px,calc(var(--vh,100dvh) - var(--sat) - 170px))}
+.kb .bw{grid-template-rows:var(--bs) 20px}
 .kb .dock{bottom:8px}
 .kb .bw{margin-top:10px}
 .scrim{position:fixed;inset:0;background:rgba(0,0,0,.25);opacity:0;visibility:hidden;transition:opacity .25s,visibility 0s .25s;z-index:5}
@@ -178,16 +181,107 @@ textarea:focus-visible{outline:2px solid var(--blue);outline-offset:0}
 .hint{box-shadow:inset 0 0 0 3px var(--blue)}
 .hint::after{content:"";position:absolute;inset:0;background:var(--blue);opacity:.18}
 .tally{margin-top:14px;font-size:.88rem;color:var(--ink2)}
-@media(prefers-reduced-motion:reduce){.arw,.spin{animation:none}.sheet,.scrim,.toast{transition:none}}
+.evrow{display:flex;align-items:center;gap:12px;padding-top:12px}
+.evbar{position:relative;flex:1;height:6px;border-radius:3px;overflow:hidden;background:#1c1c1e;box-shadow:inset 0 0 0 .5px light-dark(rgba(0,0,0,.2),rgba(255,255,255,.22))}
+#evfill{position:absolute;top:0;bottom:0;left:0;width:50%;background:#ffffff;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.evrow.flip #evfill{left:auto;right:0}
+#evlab{flex:none;min-width:2.6em;text-align:right;font-size:13px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums;letter-spacing:0}
+.kb .evrow,.kb .bw>div:nth-last-child(2){display:none}
+.studying .dock,.studying .fade{display:none}
+.stepper{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 0 0}
+.stepper span{font-size:.88rem;color:var(--ink2);font-variant-numeric:tabular-nums}
+.sbtn{min-width:96px;min-height:44px;border-radius:999px;background:var(--fill);font-weight:600}
+.sbtn.pri{background:var(--blue);color:#fff}
+.sbtn:disabled{opacity:.4}
+.kind{font-size:.88rem;font-weight:600;color:var(--ink2);margin-left:6px;vertical-align:middle}
+.studying .panel{padding-bottom:calc(var(--sab) + 32px)}
+.home{position:fixed;left:0;right:0;top:0;bottom:0;max-width:560px;margin:0 auto;overflow-y:auto;overscroll-behavior-y:contain}
+.hs{padding-bottom:calc(var(--sab) + 32px)}
+.mrow{position:relative;display:flex;align-items:center;gap:14px;width:100%;min-height:68px;padding:12px 16px;text-align:left}
+.mrow+.mrow::before{content:"";position:absolute;top:0;left:66px;right:0;height:.5px;background:var(--sep)}
+.mi{flex:none;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:#fff}
+.mi svg{width:21px;height:21px;stroke-width:2}
+.mt{flex:1;display:flex;flex-direction:column;min-width:0}
+.mt b{font-weight:600}
+.mt>span{color:var(--ink2);font-size:.88rem;margin-top:1px}
+svg.ch{width:15px;height:15px;color:var(--ink3);stroke-width:2.2}
+.ccard{display:flex;align-items:center;gap:16px;width:calc(100% - 40px);margin:22px 20px 0;padding:14px;background:var(--s1);border-radius:24px;text-align:left}
+.mini{flex:none;width:92px;height:92px;border-radius:10px;overflow:hidden;display:grid;grid-template:repeat(8,1fr)/repeat(8,1fr)}
+.mini>div{position:relative}
+.mini .pc{width:100%;height:100%}
+.ccard .mt b{font-size:1.06rem}
+.ccard .go{margin-top:8px;color:var(--blue);font-weight:600;font-size:.94rem}
+.tl{display:flex;align-items:center;gap:12px;min-width:0}
+.tl h1{font-size:min(1.4rem,30px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg button{padding:0 4px}
+.fbx{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.fbx button{flex:1;min-height:40px;padding:0 12px;border-radius:999px;background:var(--fill);font-weight:600;font-size:.88rem;white-space:nowrap}
+.fbx button.pri{background:var(--blue);color:#fff}
+.pills{display:flex;gap:10px;margin-top:16px}
+.pills button{min-height:44px;padding:0 18px;border-radius:999px;background:var(--fill);font-weight:600}
+.pills button:disabled{opacity:.4}
+.bestline{margin:14px 0 0;padding:12px 14px;border-radius:16px;background:color-mix(in srgb,var(--blue) 10%,transparent)}
+.bestline b{color:var(--blue)}
+.lt{margin:18px 0 6px;font-size:min(1.2rem,30px);font-weight:700;letter-spacing:-.01em}
+.lx{color:var(--ink)}
+.lact{margin-top:20px}
+.hero{position:relative;margin:12px 20px 0;border-radius:28px;overflow:hidden;background:linear-gradient(155deg,#0a84ff 0%,#3d5cf5 48%,#5e5ce6 100%);color:#fff;box-shadow:0 18px 40px -18px rgba(40,60,200,.55)}
+.htext{position:relative;z-index:1;padding:24px 22px 0}
+.hero h2{margin:0;font-size:min(1.75rem,40px);font-weight:800;line-height:1.08;letter-spacing:-.03em}
+.hero p{margin:10px 0 0;font-size:.94rem;line-height:1.4;color:rgba(255,255,255,.88);max-width:30ch}
+.hbtn{margin-top:18px;min-height:48px;padding:0 24px;border-radius:999px;background:#fff;color:#0a5cd8;font-weight:700;font-size:1rem;box-shadow:0 6px 16px rgba(0,0,40,.18)}
+.hbtn:active{transform:scale(.97)}
+.scene{position:relative;margin:22px 22px 0;aspect-ratio:6/5;border-radius:16px 16px 0 0;overflow:hidden;box-shadow:0 -6px 30px rgba(0,0,40,.25)}
+.sboard{position:absolute;inset:0;display:grid;grid-template:repeat(5,1fr)/repeat(6,1fr)}
+.sboard>div{position:relative}
+.sboard .pc{width:100%;height:100%}
+.sarrow{position:absolute;inset:0;width:100%;height:100%}
+.bubble{position:absolute;right:10px;bottom:10px;max-width:64%;padding:9px 13px;border-radius:16px 16px 4px 16px;font-size:.82rem;line-height:1.3;color:#0b0b0c;background:rgba(255,255,255,.82);-webkit-backdrop-filter:blur(12px) saturate(180%);backdrop-filter:blur(12px) saturate(180%);box-shadow:0 8px 20px rgba(0,0,40,.25),inset 0 1px 0 rgba(255,255,255,.9)}
+.bubble b{color:#0a5cd8}
+.ccard{margin:16px 20px 0}
+.tiles2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 20px 0}
+.tile2{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:16px;border-radius:24px;background:var(--s1);text-align:left;min-height:138px}
+.tile2 .mi{margin-bottom:10px}
+.tile2 b{font-weight:600;font-size:1rem}
+.tile2>span:last-child{color:var(--ink2);font-size:.82rem;line-height:1.35}
+.tile2:active,.ccard:active{transform:scale(.98)}
+.tip{display:flex;gap:14px;align-items:flex-start;margin:12px 20px 0;padding:16px;border-radius:24px;background:var(--s1)}
+.tipi{background:light-dark(#ffcc00,#ffd60a);color:#3a2a00}
+.tip b{font-weight:600}
+.tip p{margin:2px 0 0;color:var(--ink2);font-size:.94rem;line-height:1.4}
+@media(prefers-reduced-motion:reduce){#evfill{transition:none}.arw,.spin{animation:none}.sheet,.scrim,.toast{transition:none}}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="wk" viewBox="-3.38 -6.88 106.75 106.75"><g fill="#ffffff" stroke="#2c2c2e" stroke-width="2.4" stroke-linejoin="round"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M35.5 46C30 37 35 25 50 25S70 37 64.5 46Z"/><rect x="47" y="5" width="6" height="20" rx="2"/><rect x="41" y="10" width="18" height="6" rx="2"/></g></symbol><symbol id="bk" viewBox="-3.38 -6.88 106.75 106.75"><g fill="#1c1c1e" stroke="#6e6e73" stroke-width="1.8" stroke-linejoin="round"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M35.5 46C30 37 35 25 50 25S70 37 64.5 46Z"/><rect x="47" y="5" width="6" height="20" rx="2"/><rect x="41" y="10" width="18" height="6" rx="2"/></g></symbol><symbol id="wq" viewBox="-3.38 -5.88 106.75 106.75"><g fill="#ffffff" stroke="#2c2c2e" stroke-width="2.4" stroke-linejoin="round"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></g></symbol><symbol id="bq" viewBox="-3.38 -5.88 106.75 106.75"><g fill="#1c1c1e" stroke="#6e6e73" stroke-width="1.8" stroke-linejoin="round"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></g></symbol><symbol id="wr" viewBox="-3.38 -0.38 106.75 106.75"><g fill="#ffffff" stroke="#2c2c2e" stroke-width="2.4" stroke-linejoin="round"><path d="M31 79C33 70 34.5 60 34.5 47H65.5C65.5 60 67 70 69 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="30" y="41" width="40" height="7" rx="3.5"/><path d="M28 20.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V40H28Z"/></g></symbol><symbol id="br" viewBox="-3.38 -0.38 106.75 106.75"><g fill="#1c1c1e" stroke="#6e6e73" stroke-width="1.8" stroke-linejoin="round"><path d="M31 79C33 70 34.5 60 34.5 47H65.5C65.5 60 67 70 69 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="30" y="41" width="40" height="7" rx="3.5"/><path d="M28 20.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V40H28Z"/></g></symbol><symbol id="wb" viewBox="-3.38 -6.13 106.75 106.75"><g fill="#ffffff" stroke="#2c2c2e" stroke-width="2.4" stroke-linejoin="round"><path d="M36 79C36 67 42 61 44 55H56C58 61 64 67 64 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="37" y="49" width="26" height="7" rx="3.5"/><path d="M50 15C61 24 64.5 33 61.5 41C59.5 46 55 49 50 49S40.5 46 38.5 41C35.5 33 39 24 50 15Z"/><circle cx="50" cy="11" r="4.5"/><path d="M55.5 24L45.5 36" fill="none" stroke="#2c2c2e" stroke-width="3.2" stroke-linecap="round"/></g></symbol><symbol id="bb" viewBox="-3.38 -6.13 106.75 106.75"><g fill="#1c1c1e" stroke="#6e6e73" stroke-width="1.8" stroke-linejoin="round"><path d="M36 79C36 67 42 61 44 55H56C58 61 64 67 64 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="37" y="49" width="26" height="7" rx="3.5"/><path d="M50 15C61 24 64.5 33 61.5 41C59.5 46 55 49 50 49S40.5 46 38.5 41C35.5 33 39 24 50 15Z"/><circle cx="50" cy="11" r="4.5"/><path d="M55.5 24L45.5 36" fill="none" stroke="#e5e5ea" stroke-width="3.2" stroke-linecap="round"/></g></symbol><symbol id="wn" viewBox="-3.38 -2.88 106.75 106.75"><g fill="#ffffff" stroke="#2c2c2e" stroke-width="2.4" stroke-linejoin="round"><path d="M34 79C36 68 42 62 46 56H38.5C33.5 56 28.5 54.5 25.5 51C23 48 23.5 44.5 26.5 41.5L42 26.5C44 23 45.5 18.5 47.5 13L54 19.5C67 23 75 35 75 51C75 62 73 71 71 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><circle cx="45.5" cy="33" r="3" fill="#2c2c2e"/><path d="M60 26C67 32 70 41 70 52" fill="none" stroke="#2c2c2e" stroke-width="2.6" stroke-linecap="round" opacity=".55"/></g></symbol><symbol id="bn" viewBox="-3.38 -2.88 106.75 106.75"><g fill="#1c1c1e" stroke="#6e6e73" stroke-width="1.8" stroke-linejoin="round"><path d="M34 79C36 68 42 62 46 56H38.5C33.5 56 28.5 54.5 25.5 51C23 48 23.5 44.5 26.5 41.5L42 26.5C44 23 45.5 18.5 47.5 13L54 19.5C67 23 75 35 75 51C75 62 73 71 71 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><circle cx="45.5" cy="33" r="3" fill="#e5e5ea"/><path d="M60 26C67 32 70 41 70 52" fill="none" stroke="#e5e5ea" stroke-width="2.6" stroke-linecap="round" opacity=".55"/></g></symbol><symbol id="wp" viewBox="-3.38 0.37 106.75 106.75"><g fill="#ffffff" stroke="#2c2c2e" stroke-width="2.4" stroke-linejoin="round"><path d="M35 79C35 66 41 58 43 51H57C59 58 65 66 65 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="36" y="45" width="28" height="7" rx="3.5"/><circle cx="50" cy="32" r="12.5"/></g></symbol><symbol id="bp" viewBox="-3.38 0.37 106.75 106.75"><g fill="#1c1c1e" stroke="#6e6e73" stroke-width="1.8" stroke-linejoin="round"><path d="M35 79C35 66 41 58 43 51H57C59 58 65 66 65 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="36" y="45" width="28" height="7" rx="3.5"/><circle cx="50" cy="32" r="12.5"/></g></symbol></svg>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-review" viewBox="0 0 24 24"><path d="M4.5 4.5v12a3 3 0 0 0 3 3h12"/><path d="M8.5 14.5l3.2-3.7 2.8 2.4 4.5-5.2"/></symbol><symbol id="i-gear" viewBox="0 0 24 24"><path d="M18.59 9.96 L21.17 10.43 L21.17 13.57 L18.59 14.04 L18.10 15.22 L19.59 17.37 L17.37 19.59 L15.22 18.10 L14.04 18.59 L13.57 21.17 L10.43 21.17 L9.96 18.59 L8.78 18.10 L6.63 19.59 L4.41 17.37 L5.90 15.22 L5.41 14.04 L2.83 13.57 L2.83 10.43 L5.41 9.96 L5.90 8.78 L4.41 6.63 L6.63 4.41 L8.78 5.90 L9.96 5.41 L10.43 2.83 L13.57 2.83 L14.04 5.41 L15.22 5.90 L17.37 4.41 L19.59 6.63 L18.10 8.78Z"/><circle cx="12" cy="12" r="2.9"/></symbol><symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 13.5 4.5 9 9 4.5"/><path d="M4.5 9h10a5 5 0 0 1 0 10H11"/></symbol><symbol id="i-list" viewBox="0 0 24 24"><path d="M9.5 6.5h10M9.5 12h10M9.5 17.5h10"/><circle cx="5" cy="6.5" r="1.15" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="5" cy="17.5" r="1.15" fill="currentColor" stroke="none"/></symbol><symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5.5M6.5 11 12 5.5l5.5 5.5"/></symbol><symbol id="i-close" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17"/></symbol><symbol id="i-chev" viewBox="0 0 24 24"><path d="m9.5 5.5 6.5 6.5-6.5 6.5"/></symbol><symbol id="i-warn" viewBox="0 0 24 24"><path d="M10.27 4.5 3.3 16.6A2 2 0 0 0 5.03 19.6h13.94a2 2 0 0 0 1.73-3L13.73 4.5a2 2 0 0 0-3.46 0Z"/><path d="M12 9.5v4"/><circle cx="12" cy="16.6" r=".9" fill="currentColor" stroke="none"/></symbol></svg>
-<div class="app" id="app">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><clipPath id="clip-wk-0"><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M35.5 46C30 37 35 25 50 25S70 37 64.5 46Z"/><path d="M47 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4v9h-6v-9h-4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h4Z"/></clipPath><clipPath id="clip-wk-1"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M35.5 46C30 37 35 25 50 25S70 37 64.5 46Z"/><path d="M47 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4v9h-6v-9h-4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h4Z"/></clipPath><clipPath id="clip-wk-2"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><path d="M35.5 46C30 37 35 25 50 25S70 37 64.5 46Z"/><path d="M47 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4v9h-6v-9h-4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h4Z"/></clipPath><clipPath id="clip-wk-3"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M47 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4v9h-6v-9h-4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h4Z"/></clipPath><clipPath id="clip-wk-4"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M35.5 46C30 37 35 25 50 25S70 37 64.5 46Z"/></clipPath><clipPath id="clip-bk-0"><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M35.5 46C30 37 35 25 50 25S70 37 64.5 46Z"/><path d="M47 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4v9h-6v-9h-4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h4Z"/></clipPath><clipPath id="clip-bk-1"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M35.5 46C30 37 35 25 50 25S70 37 64.5 46Z"/><path d="M47 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4v9h-6v-9h-4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h4Z"/></clipPath><clipPath id="clip-bk-2"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><path d="M35.5 46C30 37 35 25 50 25S70 37 64.5 46Z"/><path d="M47 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4v9h-6v-9h-4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h4Z"/></clipPath><clipPath id="clip-bk-3"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M47 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4v9h-6v-9h-4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h4Z"/></clipPath><clipPath id="clip-bk-4"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M35.5 46C30 37 35 25 50 25S70 37 64.5 46Z"/></clipPath><clipPath id="clip-wq-0"><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></clipPath><clipPath id="clip-wq-1"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></clipPath><clipPath id="clip-wq-2"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></clipPath><clipPath id="clip-wq-3"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></clipPath><clipPath id="clip-wq-4"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></clipPath><clipPath id="clip-wq-5"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></clipPath><clipPath id="clip-wq-6"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></clipPath><clipPath id="clip-wq-7"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="75" cy="21" r="4"/></clipPath><clipPath id="clip-wq-8"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/></clipPath><clipPath id="clip-bq-0"><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></clipPath><clipPath id="clip-bq-1"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></clipPath><clipPath id="clip-bq-2"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></clipPath><clipPath id="clip-bq-3"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></clipPath><clipPath id="clip-bq-4"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></clipPath><clipPath id="clip-bq-5"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></clipPath><clipPath id="clip-bq-6"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="62" cy="15" r="4"/><circle cx="75" cy="21" r="4"/></clipPath><clipPath id="clip-bq-7"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="75" cy="21" r="4"/></clipPath><clipPath id="clip-bq-8"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="34" y="46" width="32" height="7" rx="3.5"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z"/><circle cx="25" cy="21" r="4"/><circle cx="38" cy="15" r="4"/><circle cx="50" cy="11" r="4"/><circle cx="62" cy="15" r="4"/></clipPath><clipPath id="clip-wr-0"><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="30" y="41" width="40" height="7" rx="3.5"/><path d="M28 20.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V40H28Z"/></clipPath><clipPath id="clip-wr-1"><path d="M31 79C33 70 34.5 60 34.5 47H65.5C65.5 60 67 70 69 79Z"/><rect x="30" y="41" width="40" height="7" rx="3.5"/><path d="M28 20.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V40H28Z"/></clipPath><clipPath id="clip-wr-2"><path d="M31 79C33 70 34.5 60 34.5 47H65.5C65.5 60 67 70 69 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><path d="M28 20.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V40H28Z"/></clipPath><clipPath id="clip-wr-3"><path d="M31 79C33 70 34.5 60 34.5 47H65.5C65.5 60 67 70 69 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="30" y="41" width="40" height="7" rx="3.5"/></clipPath><clipPath id="clip-br-0"><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="30" y="41" width="40" height="7" rx="3.5"/><path d="M28 20.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V40H28Z"/></clipPath><clipPath id="clip-br-1"><path d="M31 79C33 70 34.5 60 34.5 47H65.5C65.5 60 67 70 69 79Z"/><rect x="30" y="41" width="40" height="7" rx="3.5"/><path d="M28 20.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V40H28Z"/></clipPath><clipPath id="clip-br-2"><path d="M31 79C33 70 34.5 60 34.5 47H65.5C65.5 60 67 70 69 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><path d="M28 20.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V40H28Z"/></clipPath><clipPath id="clip-br-3"><path d="M31 79C33 70 34.5 60 34.5 47H65.5C65.5 60 67 70 69 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="30" y="41" width="40" height="7" rx="3.5"/></clipPath><clipPath id="clip-wb-0"><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="37" y="49" width="26" height="7" rx="3.5"/><path d="M50 15C61 24 64.5 33 61.5 41C59.5 46 55 49 50 49S40.5 46 38.5 41C35.5 33 39 24 50 15Z"/><circle cx="50" cy="11" r="4.5"/></clipPath><clipPath id="clip-wb-1"><path d="M36 79C36 67 42 61 44 55H56C58 61 64 67 64 79Z"/><rect x="37" y="49" width="26" height="7" rx="3.5"/><path d="M50 15C61 24 64.5 33 61.5 41C59.5 46 55 49 50 49S40.5 46 38.5 41C35.5 33 39 24 50 15Z"/><circle cx="50" cy="11" r="4.5"/></clipPath><clipPath id="clip-wb-2"><path d="M36 79C36 67 42 61 44 55H56C58 61 64 67 64 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><path d="M50 15C61 24 64.5 33 61.5 41C59.5 46 55 49 50 49S40.5 46 38.5 41C35.5 33 39 24 50 15Z"/><circle cx="50" cy="11" r="4.5"/></clipPath><clipPath id="clip-wb-3"><path d="M36 79C36 67 42 61 44 55H56C58 61 64 67 64 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="37" y="49" width="26" height="7" rx="3.5"/><circle cx="50" cy="11" r="4.5"/></clipPath><clipPath id="clip-wb-4"><path d="M36 79C36 67 42 61 44 55H56C58 61 64 67 64 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="37" y="49" width="26" height="7" rx="3.5"/><path d="M50 15C61 24 64.5 33 61.5 41C59.5 46 55 49 50 49S40.5 46 38.5 41C35.5 33 39 24 50 15Z"/></clipPath><clipPath id="clip-bb-0"><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="37" y="49" width="26" height="7" rx="3.5"/><path d="M50 15C61 24 64.5 33 61.5 41C59.5 46 55 49 50 49S40.5 46 38.5 41C35.5 33 39 24 50 15Z"/><circle cx="50" cy="11" r="4.5"/></clipPath><clipPath id="clip-bb-1"><path d="M36 79C36 67 42 61 44 55H56C58 61 64 67 64 79Z"/><rect x="37" y="49" width="26" height="7" rx="3.5"/><path d="M50 15C61 24 64.5 33 61.5 41C59.5 46 55 49 50 49S40.5 46 38.5 41C35.5 33 39 24 50 15Z"/><circle cx="50" cy="11" r="4.5"/></clipPath><clipPath id="clip-bb-2"><path d="M36 79C36 67 42 61 44 55H56C58 61 64 67 64 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><path d="M50 15C61 24 64.5 33 61.5 41C59.5 46 55 49 50 49S40.5 46 38.5 41C35.5 33 39 24 50 15Z"/><circle cx="50" cy="11" r="4.5"/></clipPath><clipPath id="clip-bb-3"><path d="M36 79C36 67 42 61 44 55H56C58 61 64 67 64 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="37" y="49" width="26" height="7" rx="3.5"/><circle cx="50" cy="11" r="4.5"/></clipPath><clipPath id="clip-bb-4"><path d="M36 79C36 67 42 61 44 55H56C58 61 64 67 64 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="37" y="49" width="26" height="7" rx="3.5"/><path d="M50 15C61 24 64.5 33 61.5 41C59.5 46 55 49 50 49S40.5 46 38.5 41C35.5 33 39 24 50 15Z"/></clipPath><clipPath id="clip-wn-0"><rect x="23" y="78" width="54" height="10" rx="5"/></clipPath><clipPath id="clip-wn-1"><path d="M34 79C36 68 42 62 46 56H38.5C33.5 56 28.5 54.5 25.5 51C23 48 23.5 44.5 26.5 41.5L42 26.5C44 23 45.5 18.5 47.5 13L54 19.5C67 23 75 35 75 51C75 62 73 71 71 79Z"/></clipPath><clipPath id="clip-bn-0"><rect x="23" y="78" width="54" height="10" rx="5"/></clipPath><clipPath id="clip-bn-1"><path d="M34 79C36 68 42 62 46 56H38.5C33.5 56 28.5 54.5 25.5 51C23 48 23.5 44.5 26.5 41.5L42 26.5C44 23 45.5 18.5 47.5 13L54 19.5C67 23 75 35 75 51C75 62 73 71 71 79Z"/></clipPath><clipPath id="clip-wp-0"><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="36" y="45" width="28" height="7" rx="3.5"/><circle cx="50" cy="32" r="12.5"/></clipPath><clipPath id="clip-wp-1"><path d="M35 79C35 66 41 58 43 51H57C59 58 65 66 65 79Z"/><rect x="36" y="45" width="28" height="7" rx="3.5"/><circle cx="50" cy="32" r="12.5"/></clipPath><clipPath id="clip-wp-2"><path d="M35 79C35 66 41 58 43 51H57C59 58 65 66 65 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><circle cx="50" cy="32" r="12.5"/></clipPath><clipPath id="clip-wp-3"><path d="M35 79C35 66 41 58 43 51H57C59 58 65 66 65 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="36" y="45" width="28" height="7" rx="3.5"/></clipPath><clipPath id="clip-bp-0"><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="36" y="45" width="28" height="7" rx="3.5"/><circle cx="50" cy="32" r="12.5"/></clipPath><clipPath id="clip-bp-1"><path d="M35 79C35 66 41 58 43 51H57C59 58 65 66 65 79Z"/><rect x="36" y="45" width="28" height="7" rx="3.5"/><circle cx="50" cy="32" r="12.5"/></clipPath><clipPath id="clip-bp-2"><path d="M35 79C35 66 41 58 43 51H57C59 58 65 66 65 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><circle cx="50" cy="32" r="12.5"/></clipPath><clipPath id="clip-bp-3"><path d="M35 79C35 66 41 58 43 51H57C59 58 65 66 65 79Z"/><rect x="23" y="78" width="54" height="10" rx="5"/><rect x="36" y="45" width="28" height="7" rx="3.5"/></clipPath></defs><symbol id="wk" viewBox="-3.38 -6.88 106.75 106.75"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><rect x="23" y="78" width="54" height="10" rx="5" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><rect x="34" y="46" width="32" height="7" rx="3.5" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><path d="M35.5 46C30 37 35 25 50 25S70 37 64.5 46Z" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><path d="M47 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4v9h-6v-9h-4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h4Z" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><g clip-path="url(#clip-wk-0)"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wk-1)"><rect x="23" y="78" width="54" height="10" rx="5" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wk-2)"><rect x="34" y="46" width="32" height="7" rx="3.5" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wk-3)"><path d="M35.5 46C30 37 35 25 50 25S70 37 64.5 46Z" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wk-4)"><path d="M47 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4v9h-6v-9h-4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h4Z" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g></symbol><symbol id="bk" viewBox="-3.38 -6.88 106.75 106.75"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><rect x="23" y="78" width="54" height="10" rx="5" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><rect x="34" y="46" width="32" height="7" rx="3.5" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><path d="M35.5 46C30 37 35 25 50 25S70 37 64.5 46Z" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><path d="M47 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4v9h-6v-9h-4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h4Z" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><g clip-path="url(#clip-bk-0)"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bk-1)"><rect x="23" y="78" width="54" height="10" rx="5" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bk-2)"><rect x="34" y="46" width="32" height="7" rx="3.5" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bk-3)"><path d="M35.5 46C30 37 35 25 50 25S70 37 64.5 46Z" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bk-4)"><path d="M47 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4v9h-6v-9h-4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h4Z" fill="none" stroke="#636366" stroke-width="1.5"/></g></symbol><symbol id="wq" viewBox="-3.38 -5.88 106.75 106.75"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><rect x="23" y="78" width="54" height="10" rx="5" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><rect x="34" y="46" width="32" height="7" rx="3.5" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><circle cx="25" cy="21" r="4" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><circle cx="38" cy="15" r="4" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><circle cx="50" cy="11" r="4" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><circle cx="62" cy="15" r="4" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><circle cx="75" cy="21" r="4" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><g clip-path="url(#clip-wq-0)"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wq-1)"><rect x="23" y="78" width="54" height="10" rx="5" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wq-2)"><rect x="34" y="46" width="32" height="7" rx="3.5" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wq-3)"><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wq-4)"><circle cx="25" cy="21" r="4" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wq-5)"><circle cx="38" cy="15" r="4" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wq-6)"><circle cx="50" cy="11" r="4" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wq-7)"><circle cx="62" cy="15" r="4" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wq-8)"><circle cx="75" cy="21" r="4" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g></symbol><symbol id="bq" viewBox="-3.38 -5.88 106.75 106.75"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><rect x="23" y="78" width="54" height="10" rx="5" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><rect x="34" y="46" width="32" height="7" rx="3.5" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><circle cx="25" cy="21" r="4" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><circle cx="38" cy="15" r="4" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><circle cx="50" cy="11" r="4" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><circle cx="62" cy="15" r="4" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><circle cx="75" cy="21" r="4" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><g clip-path="url(#clip-bq-0)"><path d="M33 79C34 67 40 59 42 52H58C60 59 66 67 67 79Z" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bq-1)"><rect x="23" y="78" width="54" height="10" rx="5" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bq-2)"><rect x="34" y="46" width="32" height="7" rx="3.5" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bq-3)"><path d="M33 46L25 23L35 32L38 17L45 30L50 13L55 30L62 17L65 32L75 23L67 46Z" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bq-4)"><circle cx="25" cy="21" r="4" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bq-5)"><circle cx="38" cy="15" r="4" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bq-6)"><circle cx="50" cy="11" r="4" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bq-7)"><circle cx="62" cy="15" r="4" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bq-8)"><circle cx="75" cy="21" r="4" fill="none" stroke="#636366" stroke-width="1.5"/></g></symbol><symbol id="wr" viewBox="-3.38 -0.38 106.75 106.75"><path d="M31 79C33 70 34.5 60 34.5 47H65.5C65.5 60 67 70 69 79Z" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><rect x="23" y="78" width="54" height="10" rx="5" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><rect x="30" y="41" width="40" height="7" rx="3.5" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><path d="M28 20.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V40H28Z" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><g clip-path="url(#clip-wr-0)"><path d="M31 79C33 70 34.5 60 34.5 47H65.5C65.5 60 67 70 69 79Z" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wr-1)"><rect x="23" y="78" width="54" height="10" rx="5" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wr-2)"><rect x="30" y="41" width="40" height="7" rx="3.5" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wr-3)"><path d="M28 20.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V40H28Z" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g></symbol><symbol id="br" viewBox="-3.38 -0.38 106.75 106.75"><path d="M31 79C33 70 34.5 60 34.5 47H65.5C65.5 60 67 70 69 79Z" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><rect x="23" y="78" width="54" height="10" rx="5" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><rect x="30" y="41" width="40" height="7" rx="3.5" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><path d="M28 20.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V40H28Z" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><g clip-path="url(#clip-br-0)"><path d="M31 79C33 70 34.5 60 34.5 47H65.5C65.5 60 67 70 69 79Z" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-br-1)"><rect x="23" y="78" width="54" height="10" rx="5" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-br-2)"><rect x="30" y="41" width="40" height="7" rx="3.5" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-br-3)"><path d="M28 20.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V25h5.5v-4.5a2.5 2.5 0 0 1 2.5-2.5h6a2.5 2.5 0 0 1 2.5 2.5V40H28Z" fill="none" stroke="#636366" stroke-width="1.5"/></g></symbol><symbol id="wb" viewBox="-3.38 -6.13 106.75 106.75"><path d="M36 79C36 67 42 61 44 55H56C58 61 64 67 64 79Z" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><rect x="23" y="78" width="54" height="10" rx="5" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><rect x="37" y="49" width="26" height="7" rx="3.5" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><path d="M50 15C61 24 64.5 33 61.5 41C59.5 46 55 49 50 49S40.5 46 38.5 41C35.5 33 39 24 50 15Z" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><circle cx="50" cy="11" r="4.5" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><g clip-path="url(#clip-wb-0)"><path d="M36 79C36 67 42 61 44 55H56C58 61 64 67 64 79Z" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wb-1)"><rect x="23" y="78" width="54" height="10" rx="5" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wb-2)"><rect x="37" y="49" width="26" height="7" rx="3.5" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wb-3)"><path d="M50 15C61 24 64.5 33 61.5 41C59.5 46 55 49 50 49S40.5 46 38.5 41C35.5 33 39 24 50 15Z" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wb-4)"><circle cx="50" cy="11" r="4.5" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><path d="M55.5 24L45.5 36" fill="none" stroke="#8e8e93" stroke-width="3.2" stroke-linecap="round"/></symbol><symbol id="bb" viewBox="-3.38 -6.13 106.75 106.75"><path d="M36 79C36 67 42 61 44 55H56C58 61 64 67 64 79Z" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><rect x="23" y="78" width="54" height="10" rx="5" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><rect x="37" y="49" width="26" height="7" rx="3.5" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><path d="M50 15C61 24 64.5 33 61.5 41C59.5 46 55 49 50 49S40.5 46 38.5 41C35.5 33 39 24 50 15Z" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><circle cx="50" cy="11" r="4.5" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><g clip-path="url(#clip-bb-0)"><path d="M36 79C36 67 42 61 44 55H56C58 61 64 67 64 79Z" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bb-1)"><rect x="23" y="78" width="54" height="10" rx="5" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bb-2)"><rect x="37" y="49" width="26" height="7" rx="3.5" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bb-3)"><path d="M50 15C61 24 64.5 33 61.5 41C59.5 46 55 49 50 49S40.5 46 38.5 41C35.5 33 39 24 50 15Z" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bb-4)"><circle cx="50" cy="11" r="4.5" fill="none" stroke="#636366" stroke-width="1.5"/></g><path d="M55.5 24L45.5 36" fill="none" stroke="#aeaeb2" stroke-width="3.2" stroke-linecap="round"/></symbol><symbol id="wn" viewBox="-3.38 -2.88 106.75 106.75"><path d="M34 79C36 68 42 62 46 56H38.5C33.5 56 28.5 54.5 25.5 51C23 48 23.5 44.5 26.5 41.5L42 26.5C44 23 45.5 18.5 47.5 13L54 19.5C67 23 75 35 75 51C75 62 73 71 71 79Z" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><rect x="23" y="78" width="54" height="10" rx="5" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><g clip-path="url(#clip-wn-0)"><path d="M34 79C36 68 42 62 46 56H38.5C33.5 56 28.5 54.5 25.5 51C23 48 23.5 44.5 26.5 41.5L42 26.5C44 23 45.5 18.5 47.5 13L54 19.5C67 23 75 35 75 51C75 62 73 71 71 79Z" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wn-1)"><rect x="23" y="78" width="54" height="10" rx="5" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><circle cx="45.5" cy="33" r="3" fill="#8e8e93"/><path d="M60 26C67 32 70 41 70 52" fill="none" stroke="#8e8e93" stroke-width="2.6" stroke-linecap="round" opacity=".8"/></symbol><symbol id="bn" viewBox="-3.38 -2.88 106.75 106.75"><path d="M34 79C36 68 42 62 46 56H38.5C33.5 56 28.5 54.5 25.5 51C23 48 23.5 44.5 26.5 41.5L42 26.5C44 23 45.5 18.5 47.5 13L54 19.5C67 23 75 35 75 51C75 62 73 71 71 79Z" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><rect x="23" y="78" width="54" height="10" rx="5" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><g clip-path="url(#clip-bn-0)"><path d="M34 79C36 68 42 62 46 56H38.5C33.5 56 28.5 54.5 25.5 51C23 48 23.5 44.5 26.5 41.5L42 26.5C44 23 45.5 18.5 47.5 13L54 19.5C67 23 75 35 75 51C75 62 73 71 71 79Z" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bn-1)"><rect x="23" y="78" width="54" height="10" rx="5" fill="none" stroke="#636366" stroke-width="1.5"/></g><circle cx="45.5" cy="33" r="3" fill="#aeaeb2"/><path d="M60 26C67 32 70 41 70 52" fill="none" stroke="#aeaeb2" stroke-width="2.6" stroke-linecap="round" opacity=".8"/></symbol><symbol id="wp" viewBox="-3.38 0.37 106.75 106.75"><path d="M35 79C35 66 41 58 43 51H57C59 58 65 66 65 79Z" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><rect x="23" y="78" width="54" height="10" rx="5" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><rect x="36" y="45" width="28" height="7" rx="3.5" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><circle cx="50" cy="32" r="12.5" fill="#ffffff" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/><g clip-path="url(#clip-wp-0)"><path d="M35 79C35 66 41 58 43 51H57C59 58 65 66 65 79Z" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wp-1)"><rect x="23" y="78" width="54" height="10" rx="5" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wp-2)"><rect x="36" y="45" width="28" height="7" rx="3.5" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g><g clip-path="url(#clip-wp-3)"><circle cx="50" cy="32" r="12.5" fill="none" stroke="#aeaeb2" stroke-width="1.5"/></g></symbol><symbol id="bp" viewBox="-3.38 0.37 106.75 106.75"><path d="M35 79C35 66 41 58 43 51H57C59 58 65 66 65 79Z" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><rect x="23" y="78" width="54" height="10" rx="5" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><rect x="36" y="45" width="28" height="7" rx="3.5" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><circle cx="50" cy="32" r="12.5" fill="#1c1c1e" stroke="#1c1c1e" stroke-width="2.4" stroke-linejoin="round"/><g clip-path="url(#clip-bp-0)"><path d="M35 79C35 66 41 58 43 51H57C59 58 65 66 65 79Z" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bp-1)"><rect x="23" y="78" width="54" height="10" rx="5" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bp-2)"><rect x="36" y="45" width="28" height="7" rx="3.5" fill="none" stroke="#636366" stroke-width="1.5"/></g><g clip-path="url(#clip-bp-3)"><circle cx="50" cy="32" r="12.5" fill="none" stroke="#636366" stroke-width="1.5"/></g></symbol></svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-review" viewBox="0 0 24 24"><path d="M4.5 4.5v12a3 3 0 0 0 3 3h12"/><path d="M8.5 14.5l3.2-3.7 2.8 2.4 4.5-5.2"/></symbol><symbol id="i-gear" viewBox="0 0 24 24"><path d="M18.59 9.96 L21.17 10.43 L21.17 13.57 L18.59 14.04 L18.10 15.22 L19.59 17.37 L17.37 19.59 L15.22 18.10 L14.04 18.59 L13.57 21.17 L10.43 21.17 L9.96 18.59 L8.78 18.10 L6.63 19.59 L4.41 17.37 L5.90 15.22 L5.41 14.04 L2.83 13.57 L2.83 10.43 L5.41 9.96 L5.90 8.78 L4.41 6.63 L6.63 4.41 L8.78 5.90 L9.96 5.41 L10.43 2.83 L13.57 2.83 L14.04 5.41 L15.22 5.90 L17.37 4.41 L19.59 6.63 L18.10 8.78Z"/><circle cx="12" cy="12" r="2.9"/></symbol><symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 13.5 4.5 9 9 4.5"/><path d="M4.5 9h10a5 5 0 0 1 0 10H11"/></symbol><symbol id="i-list" viewBox="0 0 24 24"><path d="M9.5 6.5h10M9.5 12h10M9.5 17.5h10"/><circle cx="5" cy="6.5" r="1.15" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="5" cy="17.5" r="1.15" fill="currentColor" stroke="none"/></symbol><symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5.5M6.5 11 12 5.5l5.5 5.5"/></symbol><symbol id="i-close" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17"/></symbol><symbol id="i-chev" viewBox="0 0 24 24"><path d="m9.5 5.5 6.5 6.5-6.5 6.5"/></symbol><symbol id="i-warn" viewBox="0 0 24 24"><path d="M10.27 4.5 3.3 16.6A2 2 0 0 0 5.03 19.6h13.94a2 2 0 0 0 1.73-3L13.73 4.5a2 2 0 0 0-3.46 0Z"/><path d="M12 9.5v4"/><circle cx="12" cy="16.6" r=".9" fill="currentColor" stroke="none"/></symbol><symbol id="i-back" viewBox="0 0 24 24"><path d="m14.5 5.5-6.5 6.5 6.5 6.5"/></symbol><symbol id="i-coach" viewBox="0 0 24 24"><path d="M2.5 9.5 12 5l9.5 4.5L12 14Z"/><path d="M6.5 11.6v4.4c0 1.3 2.5 3 5.5 3s5.5-1.7 5.5-3v-4.4"/><path d="M21.5 9.5v5"/></symbol><symbol id="i-helper" viewBox="0 0 24 24"><path d="M9 17.5h6M10 20.5h4"/><path d="M8.6 14.6A6 6 0 1 1 15.4 14.6c-.6.5-.9 1.2-.9 1.9v1H9.5v-1c0-.7-.3-1.4-.9-1.9Z"/></symbol></svg>
+<div class="home" id="home" hidden>
+  <div class="hs">
+    <header class="top"><h1>Move Coach</h1><button class="gb glass" id="hSet" aria-label="Settings"><svg class="i" aria-hidden="true"><use href="#i-gear"/></svg></button></header>
+    <section class="hero" aria-labelledby="heroT">
+      <div class="htext">
+        <h2 id="heroT">Play. Learn why.<br>Get better.</h2>
+        <p>Every move you make gets rated, and the coach shows you the plan behind the best one.</p>
+        <button type="button" class="hbtn" id="hPlay">Play the coach</button>
+      </div>
+      <div class="scene" aria-hidden="true">
+        <div class="sboard" id="scene"></div>
+        <svg class="sarrow" id="sceneArrow" viewBox="0 0 6 5"></svg>
+        <div class="bubble"><b>Nxf7!</b> Forks the queen and rook.</div>
+      </div>
+    </section>
+    <div id="hContinue"></div>
+    <div class="tiles2">
+      <button type="button" class="tile2" id="hHelper"><span class="mi" style="background:var(--orange)"><svg class="i" aria-hidden="true"><use href="#i-helper"/></svg></span><b>Game helper</b><span>Enter your opponent’s moves, get your best reply.</span></button>
+      <button type="button" class="tile2" id="hReview"><span class="mi" style="background:light-dark(#af52de,#bf5af2)"><svg class="i" aria-hidden="true"><use href="#i-review"/></svg></span><b>Review a game</b><span>Paste a game and see where it turned.</span></button>
+    </div>
+    <div class="tip"><span class="mi tipi"><svg class="i" aria-hidden="true"><use href="#i-helper"/></svg></span><div><b>Coach’s tip</b><p id="tipText"></p></div></div>
+  </div>
+</div>
+<div class="app" id="app" hidden>
   <div class="scroll" id="scroll">
   <header class="top">
-    <h1>Move Coach</h1>
+    <div class="tl"><button class="gb glass" id="bHome" aria-label="Home"><svg class="i" aria-hidden="true"><use href="#i-back"/></svg></button><h1 id="gTitle">Game helper</h1></div>
     <div class="tb">
     <button class="gb glass" id="bReview" aria-label="Review a game"><svg class="i" aria-hidden="true"><use href="#i-review"/></svg></button>
     <button class="gb glass" id="bSet" aria-label="Settings"><svg class="i" aria-hidden="true"><use href="#i-gear"/></svg></button>
@@ -201,6 +295,8 @@ textarea:focus-visible{outline:2px solid var(--blue);outline-offset:0}
     </div>
     <div></div>
     <div class="files" id="files" aria-hidden="true"></div>
+    <div></div>
+    <div class="evrow" id="evbar" role="img" aria-label="Who is winning"><div class="evbar"><i id="evfill"></i></div><span id="evlab"></span></div>
   </div>
   <main class="panel" id="panel"><div id="coach" aria-live="polite"></div></main>
   </div>
@@ -227,12 +323,19 @@ textarea:focus-visible{outline:2px solid var(--blue);outline-offset:0}
 <section class="sheet" id="shSet" role="dialog" aria-modal="true" aria-labelledby="tSet" aria-hidden="true">
   <div class="sh"><h2 id="tSet">Settings</h2><button class="gb glass" data-close aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-close"/></svg></button></div>
   <div class="sb">
+    <div id="setPlay" hidden>
+    <p class="lab">Computer strength</p>
+    <div class="seg" id="lvSeg"><button type="button" data-lv="beginner" aria-pressed="false">Beginner</button><button type="button" data-lv="casual" aria-pressed="true">Casual</button><button type="button" data-lv="club" aria-pressed="false">Club</button><button type="button" data-lv="strong" aria-pressed="false">Strong</button></div>
+    <p class="note lvnote"></p>
+    </div>
+    <div id="setHelper">
     <p class="lab">I play</p>
     <div class="seg" id="sideSeg"><button type="button" data-side="w" aria-pressed="true">White</button><button type="button" data-side="b" aria-pressed="false">Black</button></div>
     <p class="lab">Coach mode</p>
     <div class="seg" id="modeSeg"><button type="button" data-mode="best" aria-pressed="true">Best move</button><button type="button" data-mode="hint" aria-pressed="false">Hint</button><button type="button" data-mode="train" aria-pressed="false">Training</button></div>
     <p class="note" id="modeNote">Shows the best move and why.</p>
-    <p class="lab">Thinking time</p>
+    </div>
+    <p class="lab" id="thinkLab">Thinking time</p>
     <div class="seg" id="timeSeg"><button type="button" data-think="quick" aria-pressed="false">1 sec</button><button type="button" data-think="normal" aria-pressed="true">3 sec</button><button type="button" data-think="deep" aria-pressed="false">6 sec</button></div>
     <p class="note">More time lets the engine look further ahead.</p>
     <div class="group">
@@ -284,6 +387,18 @@ textarea:focus-visible{outline:2px solid var(--blue);outline-offset:0}
     <p class="note">On Chess.com or Lichess, open a game, tap Share or Export and copy the FEN.</p>
     <button type="button" class="wide" id="fenGo">Load position</button>
     <div class="group"><button type="button" class="row blue" id="fenCopy">Copy the current position</button></div>
+  </div>
+</section>
+<section class="sheet" id="shPlay" role="dialog" aria-modal="true" aria-labelledby="tPlay" aria-hidden="true">
+  <div class="sh"><h2 id="tPlay">Play the coach</h2><button class="gb glass" data-close aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-close"/></svg></button></div>
+  <div class="sb">
+    <p class="lab">Play as</p>
+    <div class="seg" id="colSeg"><button type="button" data-col="w" aria-pressed="true">White</button><button type="button" data-col="b" aria-pressed="false">Black</button><button type="button" data-col="r" aria-pressed="false">Random</button></div>
+    <p class="lab">Computer strength</p>
+    <div class="seg" id="lvSeg2"><button type="button" data-lv="beginner" aria-pressed="false">Beginner</button><button type="button" data-lv="casual" aria-pressed="true">Casual</button><button type="button" data-lv="club" aria-pressed="false">Club</button><button type="button" data-lv="strong" aria-pressed="false">Strong</button></div>
+    <p class="note lvnote"></p>
+    <p class="note">After each of your moves the coach tells you if it was the best move, or what you should have played instead.</p>
+    <button type="button" class="wide" id="playGo">Start game</button>
   </div>
 </section>
 <section class="sheet" id="shInfo" role="dialog" aria-modal="true" aria-labelledby="tInfo" aria-hidden="true">
@@ -1092,6 +1207,36 @@ function ChessCore() {
 }
 if (typeof module !== 'undefined') module.exports = ChessCore;
 
+// Computer opponent: picks a move at a chosen strength. Weaker levels look less far ahead
+// and choose randomly among moves that are nearly as good as the best one.
+function pickMove(C, g, lv) {
+  const L = { beginner: { d: 0, margin: 180, rnd: 0.15, book: false }, casual: { d: 1, margin: 70, rnd: 0.04, book: true },
+              club: { d: 3, margin: 25, rnd: 0, book: true }, strong: null }[lv];
+  if (!L) return g.search({ time: 1500, book: true });
+  const moves = g.legal();
+  if (!moves.length) return null;
+  if (L.book) { const b = g.bookMove(); if (b && g.find(b)) return { move: b, book: true }; }
+  const asMove = m => ({ from: m.from, to: m.to, promo: m.promo });
+  if (Math.random() < L.rnd) return { move: asMove(moves[Math.floor(Math.random() * moves.length)]) };
+  const scored = moves.map(m => {
+    g.make(m);
+    let s;
+    if (!g.legal().length) s = g.inCheck() ? C.MATE : 0;
+    else if (L.d === 0) s = -g.evaluate();
+    else { const r = g.search({ depth: L.d, time: 3000, book: false }); s = r ? -r.score : 0; }
+    g.unmake();
+    return { m, s };
+  });
+  const best = Math.max(...scored.map(x => x.s));
+  const pool = scored.filter(x => x.s >= best - L.margin);
+  let total = 0;
+  for (const x of pool) { x.w = 1 + (x.s - (best - L.margin)) / L.margin * 3; total += x.w; }
+  let r = Math.random() * total;
+  for (const x of pool) { r -= x.w; if (r <= 0) return { move: asMove(x.m), score: x.s }; }
+  return { move: asMove(pool[0].m), score: pool[0].s };
+}
+if (typeof module !== 'undefined') module.exports = pickMove;
+
 </script>
 <script>
 {
@@ -1111,6 +1256,10 @@ let sans = [], sel = -1, sugg = null, thinking = false, revealed = false, exampl
 let train = { found: 0, total: 0 }, feedback = null;
 let toastT = 0, confirmT = 0, openSheet = null, lastFocus = null, detailsHTML = '';
 let review = null, reviewGame = null;
+let screen = 'home', appMode = 'helper', level = 'casual', playAs = 'w', holdReply = false, engineBusy = false, engId = 0, hintOn = false;
+const LEVEL_NAMES = { beginner: 'Beginner', casual: 'Casual', club: 'Club', strong: 'Strong' };
+const LEVEL_NOTES = { beginner: 'Makes simple mistakes. Good for learning the basics.', casual: 'Looks one move ahead and plays loosely.', club: 'Looks a few moves ahead, like a solid club player.', strong: 'The full engine. Very hard to beat.' };
+let whiteEval = null, evalId = 0, evalTurn = 'w';
 
 const colorOf = p => C.isW(p) ? 'w' : 'b';
 const histMoves = () => G.hist.map(h => ({ from: h.m.from, to: h.m.to, promo: h.m.promo }));
@@ -1120,12 +1269,13 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;'
 const cpOf = s => Math.abs(s) > C.MATE - 1000 ? Math.sign(s) * 10000 : s;
 
 // ---------------- engine workers ----------------
-const WSRC = () => ChessCore.toString() + `
+const WSRC = () => ChessCore.toString() + '\n' + pickMove.toString() + `
 const C = ChessCore();
 function from(fen, moves) { const g = new C.Game(fen || undefined); for (const mv of moves) { const m = g.find(mv); if (!m) break; g.make(m); } return g; }
 onmessage = e => {
   const d = e.data;
   if (d.type === 'search') { const g = from(d.fen, d.moves); postMessage({ type: 'search', id: d.id, r: g.search({ time: d.time, book: d.book }) }); return; }
+  if (d.type === 'play') { const g = from(d.fen, d.moves); postMessage({ type: 'play', id: d.id, r: pickMove(C, g, d.level) }); return; }
   if (d.type === 'review') {
     const g = from(d.fen, []), out = [], n = d.moves.length;
     for (let i = 0; i <= n; i++) {
@@ -1134,7 +1284,7 @@ onmessage = e => {
       if (!lm.length) r = { score: g.inCheck() ? -C.MATE : 0, move: null };
       else r = g.search({ time: d.time, book: false });
       const bm = r.move ? g.find(r.move) : null;
-      out.push({ score: r.score, best: r.move, bestSan: bm ? g.san(bm, lm) : null, bestCap: bm && bm.cap ? bm.cap.toLowerCase() : null });
+      out.push({ score: r.score, best: r.move, pv: (r.pv || []).slice(0, 8), bestSan: bm ? g.san(bm, lm) : null, bestCap: bm && bm.cap ? bm.cap.toLowerCase() : null });
       postMessage({ type: 'progress', id: d.id, i: i + 1, n: n + 1 });
       if (i < n) { const m = g.find(d.moves[i]); if (!m) break; g.make(m); }
     }
@@ -1164,6 +1314,7 @@ function pool(onmsg) {
 }
 function syncGame(fen, moves) { const g = new C.Game(fen || undefined); for (const mv of moves) { const m = g.find(mv); if (!m) break; g.make(m); } return g; }
 function runSync(msg, onmsg) {
+  if (msg.type === 'play') { setTimeout(() => onmsg({ type: 'play', id: msg.id, r: pickMove(C, syncGame(msg.fen, msg.moves), msg.level === 'strong' ? 'club' : msg.level) }), 40); return; }
   if (msg.type === 'search') {
     setTimeout(() => onmsg({ type: 'search', id: msg.id, r: syncGame(msg.fen, msg.moves).search({ time: Math.min(msg.time, 1500), book: msg.book }) }), 40);
   } else {
@@ -1174,7 +1325,7 @@ function runSync(msg, onmsg) {
       const lm = g.legal();
       const r = lm.length ? g.search({ time: Math.min(msg.time, 400), book: false }) : { score: g.inCheck() ? -C.MATE : 0, move: null };
       const bm = r.move ? g.find(r.move) : null;
-      out.push({ score: r.score, best: r.move, bestSan: bm ? g.san(bm, lm) : null, bestCap: bm && bm.cap ? bm.cap.toLowerCase() : null });
+      out.push({ score: r.score, best: r.move, pv: (r.pv || []).slice(0, 8), bestSan: bm ? g.san(bm, lm) : null, bestCap: bm && bm.cap ? bm.cap.toLowerCase() : null });
       onmsg({ type: 'progress', id: msg.id, i: i + 1, n: n + 1 });
       if (i < n) { const m = g.find(msg.moves[i]); if (m) g.make(m); }
       i++;
@@ -1184,7 +1335,29 @@ function runSync(msg, onmsg) {
   }
 }
 let coachId = 0, judgeId = 0, reviewId = 0;
-const coachW = pool(d => { if (d.type === 'search' && d.id === coachId) { thinking = false; sugg = d.r; render(); } });
+const coachW = pool(d => {
+  if (d.type !== 'search') return;
+  if (d.id === coachId) {
+    thinking = false; sugg = d.r;
+    if (d.r && !d.r.book) whiteEval = G.turn === 'w' ? d.r.score : -d.r.score;
+    else if (d.r && d.r.book) whiteEval = 0;
+    render();
+  } else if (d.id === evalId && d.r) { whiteEval = evalTurn === 'w' ? d.r.score : -d.r.score; renderBar(); }
+});
+function askEval() {
+  evalTurn = G.turn; evalId = ++coachId;
+  coachW.send({ type: 'search', id: evalId, fen: G.startFen, moves: histMoves(), time: Math.min(TIMES[think], 1500), book: false });
+}
+const engineW = pool(d => {
+  if (d.type !== 'play' || d.id !== engId) return;
+  engineBusy = false;
+  if (appMode !== 'play' || screen !== 'game' || G.turn === side || status()) return;
+  const m = d.r && d.r.move ? G.find(d.r.move) : null;
+  if (!m) return;
+  sans.push(G.san(m)); G.make(m);
+  update();
+});
+function engineMove() { engineBusy = true; engineW.send({ type: 'play', id: ++engId, fen: G.startFen, moves: histMoves(), level }); }
 const judgeW = pool(d => { if (d.type === 'search' && feedback && d.id === judgeId) judged(d.r); });
 const reviewW = pool(d => {
   if (d.id !== reviewId) return;
@@ -1193,8 +1366,8 @@ const reviewW = pool(d => {
 });
 
 function ask() {
-  thinking = true; sugg = null; revealed = false;
-  coachW.send({ type: 'search', id: ++coachId, fen: G.startFen, moves: histMoves(), time: TIMES[think], book: true });
+  thinking = true; sugg = null; revealed = false; hintOn = false;
+  coachW.send({ type: 'search', id: ++coachId, fen: G.startFen, moves: histMoves(), time: TIMES[think], book: appMode !== 'play' });
 }
 function status() {
   if (!G.legal().length) return G.inCheck() ? (G.turn === side ? 'lost' : 'won') : 'stalemate';
@@ -1206,22 +1379,42 @@ function status() {
 function save() {
   try { localStorage.setItem('cmc-state', JSON.stringify(snapshot())); } catch (err) {}
 }
-function snapshot() { return { start: G.startFen, moves: histMoves(), side, think, mode, example, train }; }
+function snapshot() { return { start: G.startFen, moves: histMoves(), side, think, mode, example, train, appMode, level, playAs }; }
 function update() {
   sel = -1;
-  if (!status() && G.turn === side) ask();
-  else { coachId++; thinking = false; sugg = null; }
+  const over = status();
+  if (!over && G.turn === side) ask();
+  else {
+    coachId++; thinking = false; sugg = null;
+    if (over) whiteEval = over === 'won' || over === 'lost' ? (G.turn === 'w' ? -C.MATE : C.MATE) : 0;
+    else {
+      askEval();
+      if (appMode === 'play' && screen === 'game' && !holdReply && !engineBusy) engineMove();
+    }
+  }
   render();
   save();
 }
 function play(m) {
   const mine = G.turn === side;
-  if (mine && mode === 'train' && !revealed) {
+  const judge = mine && !revealed && (appMode === 'play' || mode === 'train');
+  if (judge) {
     if (thinking || !sugg) { toast('One moment, the coach is still thinking.'); return; }
     startJudging(m);
   } else if (mine) feedback = null;
+  if (mine && appMode === 'play') holdReply = true;
   sans.push(G.san(m)); G.make(m);
   update();
+  if (mine && appMode === 'play' && (!feedback || feedback.done)) afterVerdict();
+}
+// In a coach game, the computer replies straight away after a good move,
+// but waits after an inaccuracy, mistake or blunder so you can try again.
+function afterVerdict() {
+  if (appMode !== 'play') return;
+  const bad = !!feedback && ['i', 'm', 'b'].includes(feedback.kind);
+  holdReply = bad;
+  if (!bad) setTimeout(() => { if (appMode === 'play' && screen === 'game' && G.turn !== side && !status() && !holdReply && !engineBusy) { engineMove(); render(); } }, 500);
+  render();
 }
 function toast(t) {
   const e = $('err'); e.textContent = t; e.classList.add('on');
@@ -1236,12 +1429,12 @@ function startJudging(m) {
   train.total++;
   if (same(m, sugg.move)) {
     train.found++;
-    feedback = { kind: 'g', a: `${san} is the best move!`, c: why, done: true };
+    feedback = { kind: 'g', a: appMode === 'play' ? `Best move! ${san} is exactly right.` : `${san} is the best move!`, c: why, done: true };
   } else if (inBook) {
     train.found++;
     feedback = { kind: 'g', a: `${san} is a main-line opening move.`, c: `The coach would also consider ${bestSan}.`, done: true };
   } else {
-    feedback = { kind: 'w', a: `Checking ${san}…`, c: '', done: false, san, bestSan, why, best: sugg.score, bookBest: !!sugg.book };
+    feedback = { kind: 'w', a: `Checking ${san}…`, c: '', done: false, san, bestSan, why, best: sugg.score, bookBest: !!sugg.book, prev: sugg, base: histMoves(), played: { from: m.from, to: m.to, promo: m.promo } };
     const moves = histMoves().concat([{ from: m.from, to: m.to, promo: m.promo }]);
     judgeW.send({ type: 'search', id: ++judgeId, fen: G.startFen, moves, time: Math.min(TIMES[think], 2000), book: false });
   }
@@ -1252,22 +1445,28 @@ function judged(r) {
   const bestScore = f.bookBest ? Math.max(mine, 0) : f.best;
   const loss = Math.max(0, C.winPct(cpOf(bestScore)) - C.winPct(cpOf(mine)));
   let kind, head;
-  if (loss < 2) { kind = 'g'; head = `${f.san} is about as good as the best move.`; train.found++; }
-  else if (loss < 5) { kind = 'g'; head = `${f.san} is a good move.`; }
+  if (loss < 2) { kind = 'g'; head = `Excellent! ${f.san} is as good as the best move.`; train.found++; }
+  else if (loss < 5) { kind = 'g'; head = `Good move. ${f.san} keeps you on track.`; }
   else if (loss < 10) { kind = 'i'; head = `${f.san} is an inaccuracy.`; }
   else if (loss < 15) { kind = 'm'; head = `${f.san} is a mistake.`; }
   else { kind = 'b'; head = `${f.san} is a blunder.`; }
-  feedback = { kind, a: head, c: kind === 'g' && loss < 2 ? '' : `Best was ${f.bestSan}: ${f.why.charAt(0).toLowerCase() + f.why.slice(1)}`, done: true };
-  render(); save();
+  feedback = { kind, a: head, c: kind === 'g' && loss < 2 ? `The coach\u2019s pick was ${f.bestSan}: ${lc(f.why)}` : `Best was ${f.bestSan}: ${lc(f.why)}`, done: true, prev: f.prev };
+  save();
+  if (appMode === 'play' && loss >= 2 && f.base) {
+    study = buildLesson(f, r, kind, kind === 'g' ? `Good, but ${f.bestSan} was better` : head);
+    holdReply = true;
+    $('app').classList.add('studying');
+    render();
+  } else if (appMode === 'play') afterVerdict(); else render();
 }
 
 // ---------------- explanations ----------------
-function threatList(color) {
+function threatList(color, g = G) {
   const out = [];
   for (let s = 0; s < 128; s++) {
     if (s & 0x88) { s += 7; continue; }
-    const p = G.b[s];
-    if (p && colorOf(p) === color && p.toLowerCase() !== 'k' && G.threatened(s)) out.push(s);
+    const p = g.b[s];
+    if (p && colorOf(p) === color && p.toLowerCase() !== 'k' && g.threatened(s)) out.push(s);
   }
   return out;
 }
@@ -1281,28 +1480,28 @@ function warnings() {
   }
   return out;
 }
-function explain(m) {
-  const out = [], us = G.turn, them = us === 'w' ? 'b' : 'w', pt = m.piece.toLowerCase();
+function explain(m, g = G) {
+  const out = [], us = g.turn, them = us === 'w' ? 'b' : 'w', pt = m.piece.toLowerCase();
   const add = (p, t) => out.push({ p, t });
-  const san = G.san(m);
+  const san = g.san(m);
   if (san.endsWith('#')) return ['Checkmate. This ends the game.'];
-  const before = threatList(us);
+  const before = threatList(us, g);
   if (m.flags === 'k' || m.flags === 'q') add(50, 'Castles, so your king is safe and a rook joins the game.');
   if (m.promo) add(75, `Turns the pawn into a ${N[m.promo]}.`);
   if (m.cap) { const c = m.cap.toLowerCase(); add(c === 'p' ? 58 : 80, `Takes their ${N[c]} on ${C.sqName(m.to)}${m.flags === 'e' ? ' (en passant)' : ''}.`); }
   if (pt !== 'k' && before.includes(m.from)) add(62, `Moves your ${N[pt]} out of danger.`);
-  G.make(m);
-  const mover = G.b[m.to].toLowerCase(), hit = [];
+  g.make(m);
+  const mover = g.b[m.to].toLowerCase(), hit = [];
   for (let s = 0; s < 128; s++) {
     if (s & 0x88) { s += 7; continue; }
-    const p = G.b[s];
+    const p = g.b[s];
     if (!p || colorOf(p) !== them || p.toLowerCase() === 'k') continue;
-    if (G.hits(m.to, s) && (!G.attackers(s, them).length || C.RANK[p.toLowerCase()] > C.RANK[mover])) hit.push(s);
+    if (g.hits(m.to, s) && (!g.attackers(s, them).length || C.RANK[p.toLowerCase()] > C.RANK[mover])) hit.push(s);
   }
-  hit.sort((a, b) => C.RANK[G.b[b].toLowerCase()] - C.RANK[G.b[a].toLowerCase()]);
-  const after = threatList(us);
-  G.unmake();
-  const label = s => `${N[G.b[s].toLowerCase()]} on ${C.sqName(s)}`;
+  hit.sort((a, b) => C.RANK[g.b[b].toLowerCase()] - C.RANK[g.b[a].toLowerCase()]);
+  const after = threatList(us, g);
+  g.unmake();
+  const label = s => `${N[g.b[s].toLowerCase()]} on ${C.sqName(s)}`;
   const check = san.endsWith('+');
   if (check && hit.length) add(88, `Checks the king and attacks their ${label(hit[0])} at the same time.`);
   else if (check) add(64, 'Gives check, so they have to respond to it.');
@@ -1310,13 +1509,11 @@ function explain(m) {
   else if (hit.length === 1) add(55, `Attacks their ${label(hit[0])}.`);
   const saved = before.filter(s => s !== m.from && !after.includes(s));
   if (saved.length && !m.cap) add(45, `Protects your ${label(saved[0])}.`);
-  if (sugg && sugg.book && same(m, sugg.move)) add(40, 'A main-line opening move from the opening book.');
-  if (!out.length) {
-    const back = us === 'w' ? (m.from >> 4) === 7 : (m.from >> 4) === 0;
-    if ((pt === 'n' || pt === 'b') && back) add(30, `Develops your ${N[pt]} off the back row, toward the centre.`);
-    else if (pt === 'p' && ((m.from & 7) === 3 || (m.from & 7) === 4) && G.full <= 12) add(25, 'Claims space in the centre with a pawn.');
-    else add(10, 'Quietly improves your position. Of everything checked, this held up best.');
-  }
+  if (g === G && sugg && sugg.book && same(m, sugg.move)) add(40, 'A main-line opening move from the opening book.');
+  const back = us === 'w' ? (m.from >> 4) === 7 : (m.from >> 4) === 0;
+  if ((pt === 'n' || pt === 'b') && back) add(30, `Develops your ${N[pt]} off the back row, toward the centre.`);
+  else if (pt === 'p' && ((m.from & 7) === 3 || (m.from & 7) === 4) && g.full <= 12) add(25, 'Claims space in the centre with a pawn.');
+  if (!out.length) add(10, 'Quietly improves your position. Of everything checked, this held up best.');
   return out.sort((a, b) => b.p - a.p).map(x => x.t);
 }
 function evalText(s) {
@@ -1341,53 +1538,109 @@ const chev = '<svg class="i" aria-hidden="true"><use href="#i-chev"/></svg>';
 const warnIcon = '<svg class="i" aria-hidden="true"><use href="#i-warn"/></svg>';
 const FB_ICON = { g: '✓', i: '?!', m: '?', b: '??', w: '…' };
 function render() {
-  const legal = G.legal();
-  const last = G.hist.length ? G.hist[G.hist.length - 1].m : null;
-  const targets = sel >= 0 ? legal.filter(m => m.from === sel) : [];
-  const chk = G.inCheck() ? (G.turn === 'w' ? G.kw : G.kb) : -1;
-  const showHint = sugg && !thinking && G.turn === side && mode === 'hint' && !revealed ? sugg.move.from : -1;
+  const B = study ? studyGame() : G, vs = study ? study.side : side;
+  const legal = B.legal();
+  const last = B.hist.length ? B.hist[B.hist.length - 1].m : null;
+  const targets = !study && sel >= 0 ? legal.filter(m => m.from === sel) : [];
+  const chk = B.inCheck() ? (B.turn === 'w' ? B.kw : B.kb) : -1;
+  const showHint = !study && sugg && !thinking && G.turn === side && !revealed && ((appMode === 'helper' && mode === 'hint') || hintOn) ? sugg.move.from : -1;
   let h = '';
   for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) {
-    const r = side === 'w' ? i : 7 - i, f = side === 'w' ? j : 7 - j, s = r * 16 + f, p = G.b[s];
+    const r = vs === 'w' ? i : 7 - i, f = vs === 'w' ? j : 7 - j, s = r * 16 + f, p = B.b[s];
     const tg = targets.find(m => m.to === s);
     let cls = 'sq ' + ((r + f) % 2 ? 'd' : 'l');
     if (last && (s === last.from || s === last.to)) cls += ' lm';
-    if (s === sel) cls += ' sel';
+    if (s === sel && !study) cls += ' sel';
     if (s === showHint) cls += ' hint';
     if (tg) cls += ' tg' + (tg.cap ? ' cap' : '');
     if (s === chk) cls += ' chk';
     const name = C.sqName(s) + (p ? ' ' + (C.isW(p) ? 'white ' : 'black ') + N[p.toLowerCase()] : '');
     h += `<div class="${cls}" data-s="${s}" role="gridcell" aria-label="${name}">`;
-    if (p) h += `<svg class="pc" viewBox="0 0 100 100"><use href="#${colorOf(p)}${p.toLowerCase()}" width="100" height="100"/></svg>`;
+    if (p) h += `<svg class="pc ${colorOf(p)}" viewBox="0 0 100 100"><use href="#${colorOf(p)}${p.toLowerCase()}" width="100" height="100"/></svg>`;
     h += '</div>';
   }
   $('board').innerHTML = h;
-  const order = [0, 1, 2, 3, 4, 5, 6, 7].map(i => side === 'w' ? i : 7 - i);
+  const order = [0, 1, 2, 3, 4, 5, 6, 7].map(i => vs === 'w' ? i : 7 - i);
   $('ranks').innerHTML = order.map(r => `<span>${8 - r}</span>`).join('');
   $('files').innerHTML = order.map(f => `<span>${'abcdefgh'[f]}</span>`).join('');
-  drawArrow();
-  renderCoach(legal);
+  if (study) {
+    const f = study.frames[study.step];
+    drawArrows(f.arrows, vs);
+    if (f.eval !== null && f.eval !== undefined) whiteEval = f.eval;
+    renderBar(vs);
+    renderStudy();
+  } else {
+    drawArrow();
+    renderBar(vs);
+    renderCoach(legal);
+  }
   renderSheet();
   $('undo').disabled = !G.hist.length;
   $('undo').style.opacity = G.hist.length ? 1 : .35;
 }
-function drawArrow() {
-  const svg = $('arrow');
-  const show = sugg && !thinking && G.turn === side && (mode === 'best' || revealed);
-  if (!show) { svg.innerHTML = ''; return; }
-  const pos = s => { const r = s >> 4, f = s & 7; return side === 'w' ? [f + 0.5, r + 0.5] : [7.5 - f, 7.5 - r]; };
-  const [x1, y1] = pos(sugg.move.from), [x2, y2] = pos(sugg.move.to);
+function renderBar(vs) {
+  vs = vs || side;
+  const row = $('evbar'), fill = $('evfill'), lab = $('evlab');
+  row.classList.toggle('flip', vs === 'b');
+  if (whiteEval === null) { fill.style.width = '50%'; lab.textContent = ''; row.setAttribute('aria-label', 'Who is winning: not known yet'); return; }
+  const mate = Math.abs(whiteEval) > C.MATE - 1000;
+  const pct = mate ? (whiteEval > 0 ? 100 : 0) : Math.max(3, Math.min(97, C.winPct(whiteEval)));
+  fill.style.width = pct.toFixed(1) + '%';
+  const n = Math.ceil((C.MATE - Math.abs(whiteEval)) / 2), whiteLeads = whiteEval >= 0;
+  // chess convention: + means White is better, − means Black is better
+  lab.textContent = mate ? (n === 0 ? (whiteLeads ? '1–0' : '0–1') : (whiteLeads ? '+M' : '−M') + n)
+    : (Math.abs(whiteEval) < 5 ? '0.0' : (whiteLeads ? '+' : '−') + (Math.abs(whiteEval) / 100).toFixed(1));
+  const words = mate ? `${whiteLeads ? 'White' : 'Black'} is winning by force` : Math.abs(whiteEval) < 50 ? 'About equal' : `${whiteLeads ? 'White' : 'Black'} is ahead by ${(Math.abs(whiteEval) / 100).toFixed(1)}`;
+  row.setAttribute('aria-label', 'Who is winning: ' + words);
+}
+function arrowSVG(m, color, vs) {
+  const pos = s => { const r = s >> 4, f = s & 7; return vs === 'w' ? [f + 0.5, r + 0.5] : [7.5 - f, 7.5 - r]; };
+  const [x1, y1] = pos(m.from), [x2, y2] = pos(m.to);
   const L = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / L, uy = (y2 - y1) / L, px = -uy, py = ux;
-  const hx = x2 - ux * 0.42, hy = y2 - uy * 0.42, sx = x1 + ux * 0.16, sy = y1 + uy * 0.16;
-  const pts = [[x2 - ux * 0.06, y2 - uy * 0.06], [hx + px * 0.28, hy + py * 0.28], [hx - px * 0.28, hy - py * 0.28]].map(p => p.map(n => n.toFixed(3)).join(',')).join(' ');
-  svg.innerHTML = `<g class="arw"><line x1="${sx}" y1="${sy}" x2="${hx}" y2="${hy}" stroke="var(--blue)" stroke-width="0.17" stroke-linecap="round"/><polygon points="${pts}" fill="var(--blue)"/></g>`;
+  const hl = 0.3, hw = 0.2, tip = 0.1;
+  const hx = x2 - ux * (hl + tip), hy = y2 - uy * (hl + tip), sx = x1 + ux * 0.2, sy = y1 + uy * 0.2;
+  const pts = [[x2 - ux * tip, y2 - uy * tip], [hx + px * hw, hy + py * hw], [hx - px * hw, hy - py * hw]].map(p => p.map(n => n.toFixed(3)).join(',')).join(' ');
+  return `<g class="arw" style="color:${color}"><line x1="${sx.toFixed(3)}" y1="${sy.toFixed(3)}" x2="${(hx + ux * 0.02).toFixed(3)}" y2="${(hy + uy * 0.02).toFixed(3)}" stroke="currentColor" stroke-width="0.11" stroke-linecap="round"/><polygon points="${pts}" fill="currentColor" stroke="currentColor" stroke-width="0.04" stroke-linejoin="round"/></g>`;
+}
+function drawArrows(list, vs) { $('arrow').innerHTML = list.map(a => arrowSVG(a.m, a.c, vs)).join(''); }
+function drawArrow() {
+  const show = sugg && !thinking && G.turn === side && ((appMode === 'helper' && mode === 'best') || revealed);
+  drawArrows(show ? [{ m: sugg.move, c: 'var(--blue)' }] : [], side);
 }
 function fbHTML() {
   if (!feedback) return '';
-  return `<div class="fb"><span class="ic ${feedback.kind}" aria-hidden="true">${FB_ICON[feedback.kind]}</span><div><p class="a">${esc(feedback.a)}</p>${feedback.c ? `<p class="c">${esc(feedback.c)}</p>` : ''}</div></div>`;
+  const acts = appMode === 'play' && holdReply && feedback.done
+    ? `<div class="fbx"><button type="button" data-act="retry">Try again</button><button type="button" data-act="showbest">Show best</button><button type="button" class="pri" data-act="cont">Continue</button></div>` : '';
+  return `<div class="fb"><span class="ic ${feedback.kind}" aria-hidden="true">${FB_ICON[feedback.kind]}</span><div style="flex:1"><p class="a">${esc(feedback.a)}</p>${feedback.c ? `<p class="c">${esc(feedback.c)}</p>` : ''}${acts}</div></div>`;
+}
+function renderPlay(legal, over, mine, you, they) {
+  let h = fbHTML();
+  if (over) {
+    const t = { won: 'Checkmate. You win!', lost: 'Checkmate. The computer wins this one.', stalemate: 'Stalemate. It\u2019s a draw.', fifty: 'Draw by the 50-move rule.', repeat: 'Draw by repetition.', material: 'Draw. Neither side can checkmate.' }[over];
+    h += `<p class="cap">Game over</p><p class="t2">${t}</p><p class="body">You found the best or an equally good move ${train.found} times out of ${train.total}.</p><div class="pills"><button type="button" data-act="review">Review this game</button><button type="button" data-act="again">Play again</button></div>`;
+  } else if (mine) {
+    h += `<p class="cap">Your move as ${you}, against the ${LEVEL_NAMES[level]} computer</p>`;
+    const ws = warnings();
+    if (ws.length) h += `<div class="warn" role="note">${warnIcon}<span>${ws[0]}</span></div>`;
+    if (revealed && sugg) {
+      const m = G.find(sugg.move);
+      h += `<div class="bestline"><b>Best: ${G.san(m, legal)}</b><br>${explain(m)[0]}</div>`;
+    } else {
+      h += `<p class="t2">Your move</p><p class="body">${thinking ? 'The coach is getting ready. Look for checks, captures and threats first.' : 'Make your move on the board. The coach will rate it.'}</p>`;
+      h += `<div class="pills"><button type="button" data-act="hint"${thinking || hintOn ? ' disabled' : ''}>Hint</button><button type="button" data-act="reveal"${thinking ? ' disabled' : ''}>Show best</button></div>`;
+    }
+    h += `<p class="tally">Best or equally good: ${train.found} of ${train.total} moves</p>`;
+  } else {
+    h += `<p class="cap">${they} to move, the ${LEVEL_NAMES[level]} computer</p>`;
+    if (!holdReply) h += `<div class="sg"><p class="san think"><span class="spin" aria-hidden="true"></span>Thinking\u2026</p></div>`;
+  }
+  $('coach').innerHTML = h;
+  $('mv').placeholder = over ? 'Game over' : mine ? 'Your move' : 'Computer to move';
+  $('mvlab').textContent = 'Your move';
 }
 function renderCoach(legal) {
   const over = status(), mine = G.turn === side, you = side === 'w' ? 'White' : 'Black', they = side === 'w' ? 'Black' : 'White';
+  if (appMode === 'play') { renderPlay(legal, over, mine, you, they); return; }
   let h = mode === 'train' ? fbHTML() : '';
   if (over) {
     const t = { won: 'Checkmate. You win!', lost: 'Checkmate. They win this one.', stalemate: 'Stalemate. It’s a draw.', fifty: 'Draw by the 50-move rule.', repeat: 'Draw by repetition.', material: 'Draw. Neither side can checkmate.' }[over];
@@ -1452,14 +1705,92 @@ function syncSeg() {
   for (const b of document.querySelectorAll('#timeSeg button')) b.setAttribute('aria-pressed', String(b.dataset.think === think));
   for (const b of document.querySelectorAll('#modeSeg button')) b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
   for (const b of document.querySelectorAll('#rvSeg button')) b.setAttribute('aria-pressed', String(b.dataset.rv === rvDepth));
+  for (const b of document.querySelectorAll('#lvSeg button, #lvSeg2 button')) b.setAttribute('aria-pressed', String(b.dataset.lv === level));
+  for (const b of document.querySelectorAll('#colSeg button')) b.setAttribute('aria-pressed', String(b.dataset.col === playAs));
+  for (const n of document.querySelectorAll('.lvnote')) n.textContent = LEVEL_NOTES[level];
   $('modeNote').textContent = MODE_NOTES[mode];
+  const inGame = screen === 'game';
+  $('setPlay').hidden = !(inGame && appMode === 'play');
+  $('setHelper').hidden = !(inGame && appMode === 'helper');
+  $('thinkLab').textContent = appMode === 'play' && inGame ? 'Coach thinking time' : 'Thinking time';
+  $('gTitle').textContent = appMode === 'play' ? 'Coach game' : 'Game helper';
 }
 function setGame(fen, moves) {
-  G = new C.Game(fen || undefined); sans = [];
+  G = new C.Game(fen || undefined); sans = []; whiteEval = null;
   for (const mv of moves) { const m = G.find(mv); if (!m) break; sans.push(G.san(m)); G.make(m); }
   feedback = null; example = false;
 }
-function newGame() { setGame(null, []); train = { found: 0, total: 0 }; update(); }
+function newGame() { setGame(null, []); train = { found: 0, total: 0 }; holdReply = false; engineBusy = false; update(); }
+
+// ---------------- home screen ----------------
+function hasGame() { return sans.length > 0 || G.startFen !== C.START; }
+function miniBoard() {
+  let h = '';
+  for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) {
+    const r = side === 'w' ? i : 7 - i, f = side === 'w' ? j : 7 - j, p = G.b[r * 16 + f];
+    h += `<div class="${(r + f) % 2 ? 'd' : 'l'}">${p ? `<svg class="pc ${colorOf(p)}" viewBox="0 0 100 100"><use href="#${colorOf(p)}${p.toLowerCase()}" width="100" height="100"/></svg>` : ''}</div>`;
+  }
+  return h;
+}
+const TIPS = [
+  'Before every move, ask: what does my opponent’s last move threaten?',
+  'Look for checks, captures and threats, in that order.',
+  'Develop your knights and bishops before your queen.',
+  'Castle early to keep your king safe.',
+  'Count attackers and defenders before you capture.',
+  'Knights are strongest near the centre, not on the edge.',
+  'In the opening, don’t move the same piece twice without a good reason.',
+  'When you’re ahead in material, trade pieces, not pawns.',
+  'Rooks love open files and the seventh rank.',
+  'In the endgame your king is a strong piece. Bring it forward.'
+];
+function renderScene() {
+  // a knight fork: the coach's arrow and speech bubble sit on top
+  const pieces = { 'd8': 'bq', 'e8': 'bk', 'h8': 'br', 'f8': 'bb', 'f7': 'bp', 'g7': 'bp', 'h7': 'bp', 'e6': 'bp', 'c6': 'bn', 'e5': 'wn', 'c4': 'wb', 'd4': 'wp' };
+  let h = '';
+  for (let r = 8; r >= 4; r--) for (const f of 'cdefgh') {
+    const fi = 'abcdefgh'.indexOf(f), p = pieces[f + r];
+    h += `<div class="${(fi + r) % 2 ? 'd' : 'l'}">${p ? `<svg class="pc ${p[0]}" viewBox="0 0 100 100"><use href="#${p}" width="100" height="100"/></svg>` : ''}</div>`;
+  }
+  $('scene').innerHTML = h;
+  // squares in the 6x5 scene: column c..h, row 8..4 (encoded the way arrowSVG expects)
+  $('sceneArrow').innerHTML = arrowSVG({ from: 3 * 16 + 2, to: 1 * 16 + 3 }, 'var(--blue)', 'w');
+}
+function renderHome() {
+  $('tipText').textContent = TIPS[Math.floor(Date.now() / 864e5) % TIPS.length];
+  renderScene();
+  const box = $('hContinue');
+  if (!hasGame()) { box.innerHTML = ''; return; }
+  const you = side === 'w' ? 'White' : 'Black', over = status();
+  const what = appMode === 'play' ? `Coach game against the ${LEVEL_NAMES[level]} computer. You\u2019re ${you}.` : `Game helper. You\u2019re ${you}.`;
+  const where = over ? 'Game over' : `Move ${G.full}, ${G.turn === side ? 'your turn' : (appMode === 'play' ? 'computer\u2019s turn' : 'their turn')}`;
+  box.innerHTML = `<button type="button" class="ccard" id="hCont"><div class="mini" aria-hidden="true">${miniBoard()}</div><span class="mt"><b>Continue</b><span>${what}</span><span>${where}</span><span class="go">Resume game</span></span><svg class="i ch" aria-hidden="true"><use href="#i-chev"/></svg></button>`;
+}
+function showHome() {
+  screen = 'home';
+  coachW.stop(); engineW.stop(); judgeW.stop(); engineBusy = false; thinking = false;
+  if (study) { study = null; $('app').classList.remove('studying'); }
+  holdReply = false;
+  $('app').hidden = true; $('home').hidden = false;
+  syncSeg(); renderHome(); save();
+}
+function showGame() {
+  screen = 'game';
+  $('home').hidden = true; $('app').hidden = false;
+  syncSeg();
+}
+function startCoachGame() {
+  appMode = 'play';
+  side = playAs === 'r' ? (Math.random() < 0.5 ? 'w' : 'b') : playAs;
+  setGame(null, []); train = { found: 0, total: 0 }; holdReply = false; engineBusy = false;
+  closeS(true); $('app').inert = false;
+  showGame(); update();
+}
+function startHelper() {
+  appMode = 'helper';
+  setGame(null, []); train = { found: 0, total: 0 }; holdReply = false;
+  showGame(); update();
+}
 
 // ---------------- game review ----------------
 function startReview(fen, raw, sanList) {
@@ -1477,6 +1808,7 @@ function classify(loss, isBest) {
 }
 const TAG = { inaccuracy: ['i', '?!'], mistake: ['m', '?'], blunder: ['b', '??'] };
 function showReview(out) {
+  reviewGame.out = out;
   const rg = reviewGame, g = new C.Game(rg.fen), n = Math.min(rg.moves.length, out.length - 1);
   const plies = [], wp = [];
   const firstTurn = g.turn, firstFull = g.full;
@@ -1508,21 +1840,22 @@ function showReview(out) {
   const tile = c => `<div class="tile"><p class="k">${c === 'w' ? 'White' : 'Black'} accuracy</p><p class="n">${avg(acc[c])}%</p><p class="s">${counts[c].inaccuracy} inaccurac${counts[c].inaccuracy === 1 ? 'y' : 'ies'}<br>${counts[c].mistake} mistake${counts[c].mistake === 1 ? '' : 's'}<br>${counts[c].blunder} blunder${counts[c].blunder === 1 ? '' : 's'}</p></div>`;
   const key = plies.filter(p => p.cls === 'blunder' || p.cls === 'mistake').sort((a, b) => b.loss - a.loss).slice(0, 4).sort((a, b) => a.i - b.i);
   const mvLabel = p => `${p.num}${p.mover === 'w' ? '.' : '...'} ${p.san}`;
+  review = { plies, wp };
+  for (const p of plies) if (p.cls === 'mistake' || p.cls === 'blunder' || p.cls === 'inaccuracy') p.why = analyseMove(p.i).summary;
   let h = `<div class="tiles">${tile('w')}${tile('b')}</div>`;
   h += `<p class="lab">Who was winning</p><div class="fig" id="rvFig" role="img" aria-label="Chance to win for White over the game"></div><p class="note">Above the middle line White is better, below it Black is better.</p>`;
   if (key.length) {
-    h += `<p class="lab">Turning points</p><div class="group">` + key.map(p => `<button type="button" class="row km" data-ply="${p.i}"><span class="kh"><span>${mvLabel(p)}<span class="tag ${TAG[p.cls][0]}">${TAG[p.cls][1]}</span></span><span class="tag ${TAG[p.cls][0]}">${p.cls[0].toUpperCase() + p.cls.slice(1)}</span></span><span class="kd">${esc(p.why)}</span><span class="kgo">Show on board</span></button>`).join('') + `</div>`;
+    h += `<p class="lab">Turning points</p><div class="group">` + key.map(p => `<button type="button" class="row km" data-ply="${p.i}"><span class="kh"><span>${mvLabel(p)}<span class="tag ${TAG[p.cls][0]}">${TAG[p.cls][1]}</span></span><span class="tag ${TAG[p.cls][0]}">${p.cls[0].toUpperCase() + p.cls.slice(1)}</span></span><span class="kd">${esc(p.why)}</span><span class="kgo">See why on the board</span></button>`).join('') + `</div>`;
   } else h += `<p class="lab">Turning points</p><div class="group"><div class="row"><span>No mistakes or blunders. A clean game!</span></div></div>`;
   let rows = '', k = 0;
   if (plies.length && plies[0].mover === 'b') { const p = plies[0]; rows += `<tr><td>${p.num}</td><td>…</td><td>${cell(p)}</td></tr>`; k = 1; }
   for (; k < plies.length; k += 2) rows += `<tr><td>${plies[k].num}</td><td>${cell(plies[k])}</td><td>${plies[k + 1] ? cell(plies[k + 1]) : ''}</td></tr>`;
   h += `<p class="lab">All moves</p><div class="group"><table class="mvt"><thead><tr><th>#</th><th>White</th><th>Black</th></tr></thead><tbody>${rows}</tbody></table></div>`;
-  h += `<p class="note">Tap a move to open the position before it on the board. Accuracy uses the Lichess formula, so it won’t exactly match Chess.com.</p>`;
+  h += `<p class="note">Tap any move to see it explained on the board. Accuracy uses the Lichess formula, so it won’t exactly match Chess.com.</p>`;
   h += `<button type="button" class="wide soft" id="rvAgain">Review another game</button>`;
   $('rvProgress').hidden = true;
   const res = $('rvResult'); res.innerHTML = h; res.hidden = false;
   $('reviewBody').scrollTop = 0;
-  review = { plies, wp };
   drawGraph();
 }
 function cell(p) {
@@ -1543,11 +1876,225 @@ function drawGraph() {
 new ResizeObserver(() => drawGraph()).observe($('reviewBody'));
 function showPly(i) {
   const rg = reviewGame;
+  appMode = 'helper'; holdReply = false; showGame();
   setGame(rg.fen, rg.moves.slice(0, i));
   side = G.turn;
   syncSeg(); closeS(); update();
   toast(`Showing the position before ${rg.sans[i]}. The coach shows what was best here.`);
 }
+
+
+// ---------------- explaining a reviewed move, step by step ----------------
+const PVAL = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
+let study = null;
+const colourName = c => c === 'w' ? 'White' : 'Black';
+const lc = s => s ? s.charAt(0).toLowerCase() + s.slice(1) : s;
+const named = (s, mover) => { const M = colourName(mover), O = colourName(mover === 'w' ? 'b' : 'w'); return s.replace(/\byour\b/g, M + '\u2019s').replace(/\btheir\b/g, O + '\u2019s'); };
+function gameAt(rg, n) { const g = new C.Game(rg.fen); for (let k = 0; k < n; k++) { const m = g.find(rg.moves[k]); if (!m) break; g.make(m); } return g; }
+function lineSan(g, moves) {
+  const out = [];
+  let n = 0;
+  for (const mv of moves) {
+    const m = g.find(mv);
+    if (!m) break;
+    const num = g.turn === 'w' ? g.full + '.' : (n === 0 ? g.full + '...' : '');
+    out.push(num + g.san(m)); g.make(m); n++;
+  }
+  for (let k = 0; k < n; k++) g.unmake();
+  return out.join(' ');
+}
+function trimLine(g, moves) {
+  let last = 1, n = 0;
+  for (const mv of moves) { const m = g.find(mv); if (!m) break; if (m.cap || m.promo) last = Math.max(last, n + 1); g.make(m); n++; if (!g.legal().length) { last = n; break; } }
+  for (let k = 0; k < n; k++) g.unmake();
+  return moves.slice(0, Math.max(2, last));
+}
+function lineOutcome(g, moves) {
+  const won = { w: [], b: [] };
+  let n = 0, mated = null;
+  for (const mv of moves) { const m = g.find(mv); if (!m) break; if (m.cap) won[g.turn].push(m.cap.toLowerCase()); g.make(m); n++; }
+  if (!g.legal().length && g.inCheck()) mated = g.turn;
+  for (let k = 0; k < n; k++) g.unmake();
+  return { won, mated, n };
+}
+function net(a, b) {
+  const A = a.filter(p => p !== 'k'), B = b.filter(p => p !== 'k');
+  for (let i = A.length - 1; i >= 0; i--) { const j = B.indexOf(A[i]); if (j >= 0) { A.splice(i, 1); B.splice(j, 1); } }
+  for (const [x, y] of [['n', 'b'], ['b', 'n']]) { let i; while ((i = A.indexOf(x)) >= 0 && B.indexOf(y) >= 0) { A.splice(i, 1); B.splice(B.indexOf(y), 1); } }
+  const v = l => l.reduce((s, p) => s + PVAL[p], 0);
+  return { A, B, diff: v(A) - v(B) };
+}
+function listText(l) {
+  const words = { 1: 'a', 2: 'two', 3: 'three', 4: 'four' }, order = ['q', 'r', 'b', 'n', 'p'];
+  const parts = order.filter(t => l.includes(t)).map(t => { const c = l.filter(x => x === t).length; return c === 1 ? `a ${N[t]}` : `${words[c] || c} ${N[t]}s`; });
+  return parts.length > 1 ? parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1] : parts[0] || 'nothing';
+}
+const wins = n => `${listText(n.A)}${n.B.length ? ' for ' + listText(n.B) : ''}`;
+function whiteScoreAt(k) { const o = reviewGame.out[k]; if (!o) return null; const turnW = (k % 2 === 0) === (new C.Game(reviewGame.fen).turn === 'w'); return turnW ? o.score : -o.score; }
+function analyseMove(i) {
+  const rg = reviewGame, out = rg.out, g = gameAt(rg, i);
+  const me = g.turn, them = me === 'w' ? 'b' : 'w', Me = colourName(me), Them = colourName(them);
+  const played = g.find(rg.moves[i]), playedSan = g.san(played);
+  const best = out[i] && out[i].best ? g.find(out[i].best) : null, bestSan = best ? g.san(best) : null;
+  const isBest = !!best && same(best, played);
+  const pct = k => { const s = whiteScoreAt(k); if (s === null) return null; const w = C.winPct(cpOf(s)); return Math.round(me === 'w' ? w : 100 - w); };
+  const before = pct(i), after = pct(i + 1);
+  const replyLine = trimLine(g, [rg.moves[i]].concat((out[i + 1] && out[i + 1].pv) || []).slice(0, 7));
+  const res = lineOutcome(g, replyLine), lost = net(res.won[them], res.won[me]);
+  g.make(played); const afterTxt = lineSan(g, replyLine.slice(1)); g.unmake();
+  const bestLine = trimLine(g, ((out[i] && out[i].pv) || []).slice(0, 7)), resB = lineOutcome(g, bestLine), gain = net(resB.won[me], resB.won[them]);
+  const bestWhy = best ? named(explain(best, g)[0], me) : '';
+  const chances = before !== null && after !== null ? `${Me}’s winning chances went from ${before}% to ${after}%.` : '';
+  let summary;
+  if (isBest) summary = `This was the best move. ${bestWhy}`;
+  else if (res.mated === me) summary = `This allows checkmate: ${afterTxt}.`;
+  else if (lost.diff >= 1) summary = `${Them} wins ${wins(lost)} after ${afterTxt}.`;
+  else if (resB.mated === them) summary = `It missed a forced checkmate starting with ${bestSan}.`;
+  else if (gain.diff >= 2) summary = `It missed ${bestSan}, which wins ${wins(gain)}.`;
+  else summary = `Better was ${bestSan}: ${lc(bestWhy)} ${chances}`.trim();
+  return { g, me, them, Me, Them, played, playedSan, best, bestSan, isBest, bestWhy, replyLine, res, lost, chances, summary, before, after };
+}
+function buildFrames(i) {
+  const a = analyseMove(i), rg = reviewGame, base = rg.moves.slice(0, i), frames = [];
+  const p = review.plies[i];
+  frames.push({
+    moves: base, eval: whiteScoreAt(i),
+    arrows: a.isBest ? [{ m: a.played, c: 'var(--blue)' }] : [{ m: a.played, c: 'var(--red)' }].concat(a.best ? [{ m: a.best, c: 'var(--blue)' }] : []),
+    title: a.summary,
+    text: a.isBest ? 'The blue arrow shows the move played.' : 'Red arrow: the move played. Blue arrow: the better move. Tap Next to see what happens after the move played.'
+  });
+  if (!a.isBest) {
+    const g = a.g, seq = [];
+    let k = 0;
+    for (const mv of a.replyLine) { const m = g.find(mv); if (!m) break; seq.push(m); g.make(m); k++; }
+    for (let j = 0; j < k; j++) g.unmake();
+    // after the played move, show each reply in turn
+    for (let s = 1; s < seq.length; s++) {
+      for (let j = 0; j < s; j++) g.make(seq[j]);
+      const m = seq[s], san = g.san(m), who = colourName(g.turn);
+      const reason = named(explain(m, g)[0], g.turn);
+      for (let j = 0; j < s; j++) g.unmake();
+      const mover = s % 2 === 1 ? a.them : a.me;
+      frames.push({
+        moves: base.concat(seq.slice(0, s)), eval: s === 1 ? whiteScoreAt(i + 1) : null,
+        arrows: [{ m, c: mover === a.them ? 'var(--orange)' : 'var(--ink2)' }],
+        title: s === 1 ? `After ${a.playedSan}, ${who} plays ${san}` : `Then ${who} plays ${san}`,
+        text: reason
+      });
+    }
+    let end;
+    if (a.res.mated === a.me) end = 'Checkmate. That’s why the move was so costly.';
+    else if (a.lost.diff >= 1) end = `${a.Them} has won ${wins(a.lost)}. ${a.chances}`;
+    else end = `Material is even, but ${a.Them}’s position is now better. ${a.chances}`;
+    frames.push({ moves: base.concat(seq), eval: null, arrows: [], title: 'Where this leads', text: end.trim() });
+  }
+  return { i, frames, step: 0, side: a.me, label: `${p.num}${p.mover === 'w' ? '.' : '...'} ${p.san}`, cls: p.cls };
+}
+function openStudy(i) {
+  if (screen !== 'game') showGame();
+  study = buildFrames(i);
+  closeS(true); $('app').inert = false;
+  $('app').classList.add('studying');
+  render();
+}
+function exitStudy(toReview) {
+  study = null; $('app').classList.remove('studying');
+  render();
+  if (toReview) openS('shReview');
+}
+function studyGame() { const f = study.frames[study.step]; const g = new C.Game(study.fen || reviewGame.fen); for (const mv of f.moves) { const m = g.find(mv); if (!m) break; g.make(m); } return g; }
+function renderStudy() {
+  if (study.lesson) { renderLesson(); return; }
+  const f = study.frames[study.step], n = study.frames.length, t = TAG[study.cls];
+  const clsName = study.cls.charAt(0).toUpperCase() + study.cls.slice(1);
+  let h = `<p class="cap">Game review</p><p class="t2">${study.label}${t ? `<span class="tag ${t[0]}">${t[1]}</span>` : ''} <span class="kind">${clsName}</span></p>`;
+  h += `<div class="fb"><div><p class="a">${esc(f.title)}</p>${f.text ? `<p class="c">${esc(f.text)}</p>` : ''}</div></div>`;
+  if (n > 1) h += `<div class="stepper"><button type="button" class="sbtn" data-act="sprev"${study.step === 0 ? ' disabled' : ''}>Back</button><span>Step ${study.step + 1} of ${n}</span><button type="button" class="sbtn pri" data-act="snext"${study.step === n - 1 ? ' disabled' : ''}>Next</button></div>`;
+  h += `<div class="group"><button type="button" class="row blue" data-act="splay">Play from the position before this move</button><button type="button" class="row" data-act="sexit">Back to review</button></div>`;
+  $('coach').innerHTML = h;
+}
+
+
+// ---------------- coach lessons: the coach takes over the board and explains ----------------
+const povFor = (text, mover) => mover === side ? text : text.replace(/\byour\b/g, '\u0000').replace(/\btheir\b/g, 'your').replace(/\u0000/g, 'their');
+function principleTip(g, m, best) {
+  const me = g.turn, pt = m.piece.toLowerCase(), full = g.full;
+  const home = me === 'w' ? { n: [113, 118], b: [114, 117] } : { n: [1, 6], b: [2, 5] };
+  const Nn = me === 'w' ? 'N' : 'n', Bb = me === 'w' ? 'B' : 'b';
+  let undeveloped = 0;
+  for (const s of home.n) if (g.b[s] === Nn) undeveloped++;
+  for (const s of home.b) if (g.b[s] === Bb) undeveloped++;
+  const toFile = m.to & 7, castles = x => x && (x.flags === 'k' || x.flags === 'q');
+  if (pt === 'q' && full <= 8 && undeveloped >= 2 && !m.cap) return 'Bringing your queen out early lets your opponent attack it while developing their own pieces. Develop your knights and bishops first.';
+  if ((pt === 'n' || pt === 'b') && full <= 10 && undeveloped >= 2 && !home[pt].includes(m.from) && !m.cap) return 'Moving the same piece twice in the opening costs time. Bring out a new piece instead.';
+  if (pt === 'k' && !castles(m) && full <= 15 && !g.inCheck()) return 'Moving your king early gives up castling and leaves it stuck in the middle.';
+  if (pt === 'n' && (toFile === 0 || toFile === 7) && !m.cap) return 'A knight on the edge of the board controls fewer squares. Knights are strongest near the centre.';
+  if (pt === 'p' && full <= 6 && [0, 1, 6, 7].includes(m.from & 7) && best && best.piece.toLowerCase() !== 'p') return 'Early edge-pawn moves don’t develop a piece or fight for the centre.';
+  if (castles(best) && !castles(m)) return 'Castling now would get your king to safety and bring a rook into the game.';
+  return null;
+}
+function buildLesson(f, r, kind, head) {
+  const gb = new C.Game(G.startFen);
+  for (const mv of f.base) { const x = gb.find(mv); if (x) gb.make(x); }
+  const me = gb.turn, them = me === 'w' ? 'b' : 'w';
+  const played = gb.find(f.played), best = gb.find(f.prev.move);
+  const playedSan = gb.san(played), bestSan = gb.san(best);
+  const tip = principleTip(gb, played, best);
+  const toWhite = s => side === 'w' ? s : -s;
+  const mineScore = r ? -r.score : f.best;
+  const pBest = Math.round(C.winPct(cpOf(f.best))), pMine = Math.round(C.winPct(cpOf(mineScore)));
+  const frames = [];
+  frames.push({
+    moves: f.base, eval: toWhite(f.best),
+    arrows: [{ m: played, c: 'var(--red)' }, { m: best, c: 'var(--blue)' }],
+    title: `You played ${playedSan}. The coach prefers ${bestSan}.`,
+    text: (tip ? tip + ' ' : '') + 'Red arrow: your move. Blue arrow: the better move. Tap Next to see the plan behind it.'
+  });
+  // the better plan, a few moves deep
+  const plan = (f.prev.pv || []).slice(0, 4);
+  let made = 0;
+  for (let s = 0; s < plan.length; s++) {
+    const m = gb.find(plan[s]);
+    if (!m) break;
+    const mover = gb.turn, san = gb.san(m), reasons = explain(m, gb);
+    frames.push({
+      moves: f.base.concat(plan.slice(0, s)), eval: null,
+      arrows: [{ m, c: mover === side ? 'var(--blue)' : 'var(--orange)' }],
+      title: s === 0 ? `The better plan starts with ${san}` : mover === side ? `Then you play ${san}` : `They would likely answer ${san}`,
+      text: povFor(reasons.slice(0, 2).join(' '), mover)
+    });
+    gb.make(m); made++;
+  }
+  for (let j = 0; j < made; j++) gb.unmake();
+  // what the move actually played allows
+  gb.make(played);
+  const reply = r && r.pv && r.pv[0] ? gb.find(r.pv[0]) : null;
+  if (reply) frames.push({
+    moves: f.base.concat([f.played]), eval: toWhite(mineScore),
+    arrows: [{ m: reply, c: 'var(--orange)' }],
+    title: `After your ${playedSan}, they can play ${gb.san(reply)}`,
+    text: povFor(explain(reply, gb).slice(0, 2).join(' '), gb.turn)
+  });
+  gb.unmake();
+  const line = trimLine(gb, [f.played].concat((r && r.pv) || []).slice(0, 7));
+  const res = lineOutcome(gb, line), lost = net(res.won[them], res.won[me]);
+  let end;
+  if (res.mated === me) end = 'Your move allows checkmate. Before every move, ask what your opponent can do next.';
+  else if (lost.diff >= 1) end = `Your move lets them win ${wins(lost)}. Before moving, check that every piece you move is still protected.`;
+  else end = `With ${bestSan} your chance to win would be about ${pBest}%. After ${playedSan} it’s about ${pMine}%.`;
+  if (tip) end += ' Remember: ' + lc(tip.split('. ')[0]) + '.';
+  frames.push({ moves: f.base.concat([f.played]), eval: toWhite(mineScore), arrows: [], title: 'The takeaway', text: end });
+  return { lesson: true, fen: G.startFen, frames, step: 0, side, kind, head, playedSan, bestSan, best: f.prev.move };
+}
+function renderLesson() {
+  const f = study.frames[study.step], n = study.frames.length;
+  let h = `<div class="fb"><span class="ic ${study.kind}" aria-hidden="true">${FB_ICON[study.kind]}</span><div style="flex:1"><p class="a">${esc(study.head)}</p><p class="c">Coach lesson, step ${study.step + 1} of ${n}</p></div></div>`;
+  h += `<p class="lt">${esc(f.title)}</p><p class="body lx">${esc(f.text)}</p>`;
+  h += `<div class="stepper"><button type="button" class="sbtn" data-act="sprev"${study.step === 0 ? ' disabled' : ''}>Back</button><span>${study.step + 1} of ${n}</span><button type="button" class="sbtn pri" data-act="snext"${study.step === n - 1 ? ' disabled' : ''}>Next</button></div>`;
+  h += `<div class="fbx lact"><button type="button" data-act="lretry">Try again</button><button type="button" data-act="lbest">Play ${esc(study.bestSan)}</button><button type="button" class="pri" data-act="lcont">Continue</button></div>`;
+  $('coach').innerHTML = h;
+}
+function endLesson() { study = null; $('app').classList.remove('studying'); }
 
 // ---------------- sheets ----------------
 function openS(id) {
@@ -1579,7 +2126,16 @@ for (const s of document.querySelectorAll('.sheet')) {
 }
 $('scrim').addEventListener('click', () => closeS());
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeS(); });
-$('bSet').addEventListener('click', () => openS('shSet'));
+$('bSet').addEventListener('click', () => { syncSeg(); openS('shSet'); });
+$('hSet').addEventListener('click', () => { syncSeg(); openS('shSet'); });
+$('bHome').addEventListener('click', showHome);
+$('hPlay').addEventListener('click', () => { syncSeg(); openS('shPlay'); });
+$('hHelper').addEventListener('click', startHelper);
+$('hReview').addEventListener('click', () => { if ($('rvProgress').hidden && $('rvResult').hidden) $('rvInput').hidden = false; openS('shReview'); });
+$('home').addEventListener('click', e => { if (e.target.closest('#hCont')) { showGame(); holdReply = false; feedback = null; update(); } });
+$('playGo').addEventListener('click', startCoachGame);
+$('colSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; playAs = b.dataset.col; syncSeg(); });
+for (const id of ['lvSeg', 'lvSeg2']) $(id).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; level = b.dataset.lv; syncSeg(); save(); });
 $('bMoves').addEventListener('click', () => openS('shMoves'));
 $('bInfo').addEventListener('click', () => openS('shInfo'));
 $('bFen').addEventListener('click', () => { $('fen').value = G.fen(); $('fenErr').textContent = ''; openS('shFen'); });
@@ -1591,7 +2147,8 @@ $('bReview').addEventListener('click', () => {
 // ---------------- events ----------------
 $('board').addEventListener('click', e => {
   const el = e.target.closest('.sq');
-  if (!el || status()) return;
+  if (study || !el || status()) return;
+  if (appMode === 'play' && G.turn !== side) { toast(holdReply ? 'Tap Continue to let the computer move, or Try again.' : 'The computer is thinking.'); return; }
   const s = +el.dataset.s, p = G.b[s];
   if (sel >= 0) {
     const ms = G.legal().filter(m => m.from === sel && m.to === s);
@@ -1606,13 +2163,45 @@ $('panel').addEventListener('click', e => {
   const act = a.dataset.act;
   if (act === 'play' && sugg) { const m = G.find(sugg.move); if (m) play(m); }
   if (act === 'new') newGame();
+  if (act === 'hint') { hintOn = true; render(); return; }
+  if (act === 'cont') { holdReply = false; feedback = null; if (G.turn !== side && !status()) engineMove(); render(); return; }
+  if (act === 'retry' || act === 'showbest') {
+    if (!G.hist.length) return;
+    const prev = feedback && feedback.prev;
+    G.unmake(); sans.pop(); holdReply = false; feedback = null;
+    if (act === 'showbest' && prev) { sel = -1; sugg = prev; thinking = false; revealed = true; coachId++; render(); save(); }
+    else update();
+    return;
+  }
+  if (act === 'again') { openS('shPlay'); return; }
+  if (act === 'reveal' && appMode === 'play') { revealed = true; train.total++; render(); save(); return; }
   if (act === 'reveal') { revealed = true; if (mode === 'train') { train.total++; feedback = { kind: 'w', a: 'Answer shown.', c: 'This one doesn’t count as found.', done: true }; } render(); save(); }
+  if (act === 'lcont' && study) {
+    const s = study; endLesson();
+    holdReply = false; feedback = { kind: s.kind, a: s.head, c: `Best was ${s.bestSan}.`, done: true };
+    if (G.turn !== side && !status()) engineMove();
+    render(); save(); return;
+  }
+  if ((act === 'lretry' || act === 'lbest') && study) {
+    const s = study; endLesson();
+    G.unmake(); sans.pop(); holdReply = false; feedback = null;
+    if (act === 'lbest') {
+      const m = G.find(s.best);
+      if (m) { sans.push(G.san(m)); G.make(m); feedback = { kind: 'g', a: `You played ${s.bestSan}, the coach\u2019s move.`, c: '', done: true }; }
+    }
+    update(); return;
+  }
+  if (act === 'snext' && study && study.step < study.frames.length - 1) { study.step++; render(); }
+  if (act === 'sprev' && study && study.step > 0) { study.step--; render(); }
+  if (act === 'sexit') exitStudy(true);
+  if (act === 'splay' && study) { const i = study.i; study = null; $('app').classList.remove('studying'); showPly(i); }
   if (act === 'details') { $('detailsBody').innerHTML = detailsHTML; openS('shDetails'); }
-  if (act === 'review') { $('pgn').value = pgnText(); openS('shReview'); $('rvInput').hidden = true; startReview(G.startFen, histMoves(), sans.slice()); }
+  if (act === 'review') { holdReply = false; $('pgn').value = pgnText(); openS('shReview'); $('rvInput').hidden = true; startReview(G.startFen, histMoves(), sans.slice()); }
 });
 $('f').addEventListener('submit', e => {
   e.preventDefault();
   if (status()) return;
+  if (appMode === 'play' && G.turn !== side) { toast(holdReply ? 'Tap Continue to let the computer move, or Try again.' : 'The computer is thinking.'); return; }
   const v = $('mv').value.trim(), m = G.parse(v);
   if (!m) { toast(v ? `"${v}" isn't a legal move here. Try Nf6, exd5 or O-O.` : 'Type a move first, like Nf6.'); return; }
   $('mv').value = '';
@@ -1628,7 +2217,7 @@ $('newg').addEventListener('click', () => {
   const b = $('newg');
   if (!confirmT) { b.textContent = 'Tap again to clear the board'; confirmT = setTimeout(() => { confirmT = 0; b.textContent = 'New game'; }, 3000); return; }
   clearTimeout(confirmT); confirmT = 0; b.textContent = 'New game';
-  newGame(); closeS();
+  if (appMode === 'play') { closeS(true); startCoachGame(); } else { newGame(); closeS(); }
 });
 async function copyText(btn, text, label) {
   try { await navigator.clipboard.writeText(text); btn.textContent = 'Copied'; }
@@ -1642,7 +2231,7 @@ $('fenGo').addEventListener('click', () => {
   if (err) { $('fenErr').textContent = err; return; }
   const parts = v.split(/\s+/);
   setGame(parts.length >= 4 ? v : parts.slice(0, 2).join(' ') + ' - - 0 1', []);
-  side = G.turn; syncSeg();
+  side = G.turn; appMode = 'helper'; holdReply = false; showGame(); syncSeg();
   closeS(); update();
   toast(`Position loaded. ${G.turn === 'w' ? 'White' : 'Black'} to move.`);
 });
@@ -1661,7 +2250,7 @@ $('rvCancel').addEventListener('click', () => { reviewId++; reviewW.stop(); $('r
 $('reviewBody').addEventListener('click', e => {
   if (e.target.closest('#rvAgain')) { $('rvResult').hidden = true; $('rvInput').hidden = false; $('reviewBody').scrollTop = 0; return; }
   const b = e.target.closest('[data-ply]');
-  if (b) showPly(+b.dataset.ply);
+  if (b) openStudy(+b.dataset.ply);
 });
 
 // Keep the move bar above the keyboard and shrink the board while typing
@@ -1688,18 +2277,15 @@ function boot(d) {
   if (d.side === 'b') side = 'b';
   if (TIMES[d.think]) think = d.think;
   if (MODE_NOTES[d.mode]) mode = d.mode;
+  if (LEVEL_NAMES[d.level]) level = d.level;
+  if (['w', 'b', 'r'].includes(d.playAs)) playAs = d.playAs;
+  if (d.appMode === 'play' || d.appMode === 'helper') appMode = d.appMode;
   if (d.train && typeof d.train.found === 'number') train = { found: d.train.found | 0, total: d.train.total | 0 };
-  if (Array.isArray(d.moves)) {
-    const fen = typeof d.start === 'string' && !C.Game.validate(d.start) ? d.start : null;
-    setGame(fen, d.moves);
-    example = !!d.example;
-  } else {
-    setGame(null, []);
-    for (const s of EXAMPLE) { const m = G.parse(s); sans.push(G.san(m)); G.make(m); }
-    example = true;
-  }
+  const fen = typeof d.start === 'string' && !C.Game.validate(d.start) ? d.start : null;
+  setGame(fen, Array.isArray(d.moves) ? d.moves : []);
   syncSeg();
-  update();
+  render();
+  showHome();
 }
 window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
 }

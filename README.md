@@ -6,12 +6,13 @@ The chess engine is written from scratch in JavaScript, with no chess libraries.
 
 ## Features
 
-- **Best move:** an arrow on the board, the main reason in plain English, and details (evaluation, chance to win, expected line).
-- **Hint mode:** highlights which piece to move, so you find the move yourself.
-- **Training mode:** you play first, then the coach rates your move (best, good, inaccuracy, mistake or blunder) and keeps score.
-- **Game review:** paste a game from Chess.com or Lichess. You get accuracy for each side, a "who was winning" graph, turning points with explanations, and every move rated. Tap any move to open that position on the board.
-- **Warnings:** pieces of yours that are under attack are flagged before you move.
-- **Load a position:** paste a FEN to analyse any position.
+- **Welcome screen:** continue your last game, or start a new one.
+- **Play the coach:** play the computer at four strengths (Beginner, Casual, Club, Strong). Every move you make is rated. After any move that isn't the best, the game pauses for a short lesson on the board: your move against the better one, the better plan played out a few moves ahead with reasons, what your move allows, and a takeaway. Then try again, play the better move, or continue.
+- **Game helper:** enter your opponent's moves and get your best reply, with hint and training modes.
+- **Who's winning bar** under the board, updated after every move.
+- **Game review:** paste a game from Chess.com or Lichess for accuracy, a "who was winning" graph, and turning points. Tap any move for a step-by-step walkthrough showing why it was a mistake and what it cost.
+- **Warnings** for pieces of yours that are under attack.
+- **Load a position** from a FEN.
 - **Works offline** as a Home Screen app, and remembers your game.
 
 ## How the engine works
