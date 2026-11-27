@@ -254,6 +254,7 @@ svg.ch{width:15px;height:15px;color:var(--ink3);stroke-width:2.2}
 .tip p{margin:2px 0 0;color:var(--ink2);font-size:.88rem;line-height:1.35}
 .hfoot{margin:28px 20px 0;text-align:center;color:var(--ink3);font-size:.76rem}
 .hfoot p{margin:0}
+.hfoot .ver{margin-top:2px;font-size:.7rem;font-variant-numeric:tabular-nums}
 .hfoot button{margin-top:4px;min-height:36px;padding:0 10px;color:var(--blue);font-size:.82rem;font-weight:500}
 .legal p{margin:0}
 .legal .row{display:block}
@@ -301,7 +302,7 @@ svg.ch{width:15px;height:15px;color:var(--ink3);stroke-width:2.2}
       <button type="button" class="tile2" id="hReview"><span class="mi" style="background:light-dark(#af52de,#bf5af2)"><svg class="i" aria-hidden="true"><use href="#i-review"/></svg></span><b>Review a game</b><span>Paste a game and see where it turned.</span></button>
     </div>
     <div class="tip"><span class="mi tipi"><svg class="i" aria-hidden="true"><use href="#i-spark"/></svg></span><div class="tipt"><b>Coach’s tip</b><p id="tipText"></p></div></div>
-    <footer class="hfoot"><p>© 2026 Fazal Mahmood. Made for learning chess.</p><button type="button" id="hAbout">About and legal</button></footer>
+    <footer class="hfoot"><p>© 2026 Fazal Mahmood. Made for learning chess.</p><p class="ver">Version 1.7</p><button type="button" id="hAbout">About and legal</button></footer>
   </div>
 </div>
 <div class="app" id="app" hidden>
@@ -1892,6 +1893,7 @@ function renderHome() {
   box.innerHTML = `<button type="button" class="ccard" id="hCont"><div class="mini" aria-hidden="true">${miniBoard()}</div><span class="mt"><b>Continue</b><span>${what}</span><span>${where}</span><span class="go">Resume game</span></span><svg class="i ch" aria-hidden="true"><use href="#i-chev"/></svg></button>`;
 }
 function showHome() {
+  if (window.__swUpdated) { save(); location.reload(); return; }
   screen = 'home';
   coachW.stop(); engineW.stop(); judgeW.stop(); engineBusy = false; thinking = false; pendingJudge = null;
   if (study) { study = null; $('app').classList.remove('studying'); }
@@ -2444,7 +2446,20 @@ window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.
 
 </script>
 <script>
-if ('serviceWorker' in navigator && window.isSecureContext) navigator.serviceWorker.register('sw.js').catch(() => {});
+if ('serviceWorker' in navigator && window.isSecureContext) {
+  // An updated version is used the next time you go to the home screen (or straight away if you're on it).
+  const hadSW = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadSW || window.__swUpdated) return;
+    window.__swUpdated = true;
+    const home = document.getElementById('home');
+    if (home && !home.hidden) location.reload();
+  });
+  navigator.serviceWorker.register('sw.js').then(reg => {
+    // Home Screen apps resume without reloading, so check for updates whenever the app comes back.
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+  }).catch(() => {});
+}
 </script>
 </body>
 </html>
