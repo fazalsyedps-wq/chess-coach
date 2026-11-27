@@ -1,7 +1,7 @@
 // Offline support.
 // When online, always load the newest version from the web (so updates show up straight away)
 // and keep a copy. When offline, use the saved copy.
-const CACHE = 'move-coach-v10';
+const CACHE = 'move-coach-1.8';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(f => new Request(f, { cache: 'reload' })))));

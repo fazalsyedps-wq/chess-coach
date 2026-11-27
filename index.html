@@ -302,7 +302,7 @@ svg.ch{width:15px;height:15px;color:var(--ink3);stroke-width:2.2}
       <button type="button" class="tile2" id="hReview"><span class="mi" style="background:light-dark(#af52de,#bf5af2)"><svg class="i" aria-hidden="true"><use href="#i-review"/></svg></span><b>Review a game</b><span>Paste a game and see where it turned.</span></button>
     </div>
     <div class="tip"><span class="mi tipi"><svg class="i" aria-hidden="true"><use href="#i-spark"/></svg></span><div class="tipt"><b>Coach’s tip</b><p id="tipText"></p></div></div>
-    <footer class="hfoot"><p>© 2026 Fazal Mahmood. Made for learning chess.</p><p class="ver">Version 1.7</p><button type="button" id="hAbout">About and legal</button></footer>
+    <footer class="hfoot"><p>© 2026 Fazal Mahmood. Made for learning chess.</p><p class="ver">Version 1.8</p><button type="button" id="hAbout">About and legal</button></footer>
   </div>
 </div>
 <div class="app" id="app" hidden>
@@ -1696,8 +1696,9 @@ function render() {
     renderCoach(legal);
   }
   renderSheet();
-  $('undo').disabled = !G.hist.length;
-  $('undo').style.opacity = G.hist.length ? 1 : .35;
+  const canUndo = undoPlies() > 0;
+  $('undo').disabled = !canUndo;
+  $('undo').style.opacity = canUndo ? 1 : .35;
 }
 function renderBar(vs) {
   vs = vs || side;
@@ -2366,7 +2367,25 @@ $('sideSeg').addEventListener('click', e => { const b = e.target.closest('button
 $('timeSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; think = b.dataset.think; syncSeg(); if (G.turn === side && !status()) { ask(); render(); } save(); });
 $('modeSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; mode = b.dataset.mode; revealed = false; feedback = null; syncSeg(); render(); save(); });
 $('rvSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; rvDepth = b.dataset.rv; syncSeg(); });
-$('undo').addEventListener('click', () => { if (!G.hist.length) return; pendingJudge = null; coachId++; G.unmake(); sans.pop(); feedback = null; holdReply = false; update(); });
+// How many moves Undo takes back. In the game helper it's one move at a time.
+// In a coach game it goes back to before your last move, so it's your turn again:
+// the computer's reply and your move (or just your move if the computer hasn't replied yet).
+function undoPlies() {
+  const n = G.hist.length;
+  if (appMode !== 'play') return n ? 1 : 0;
+  const k = G.turn === side ? 2 : 1;
+  return n >= k ? k : 0;
+}
+$('undo').addEventListener('click', () => {
+  const k = undoPlies();
+  if (!k || study) return;
+  // Cancel anything still working on the old position.
+  coachW.stop(); engineW.stop(); judgeW.stop();
+  coachId++; engId++; judgeId++; engineBusy = false; pendingJudge = null;
+  for (let i = 0; i < k; i++) { G.unmake(); sans.pop(); }
+  feedback = null; holdReply = false;
+  update();
+});
 $('newg').addEventListener('click', () => {
   const b = $('newg');
   if (!confirmT) { b.textContent = 'Tap again to clear the board'; confirmT = setTimeout(() => { confirmT = 0; b.textContent = 'New game'; }, 3000); return; }
